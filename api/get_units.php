@@ -17,14 +17,8 @@ if ($subject_id === 0) {
 }
 
 $stmt = $conn->prepare("SELECT unit_number, unit_name FROM units WHERE subject_id = ? ORDER BY unit_number ASC");
-$stmt->bind_param("i", $subject_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-$units = [];
-while ($row = $result->fetch_assoc()) {
-    $units[] = $row;
-}
+$stmt->execute([$subject_id]);
+$units = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($units);
 ?>

@@ -6,9 +6,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$email) die("Email required");
 
     $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $user = $stmt->get_result()->fetch_assoc();
+    $stmt->execute([$email]);
+    $user = $stmt->fetch();
 
     if ($user) {
         // Generate secure random token
@@ -16,8 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
         
         $stmt = $conn->prepare("INSERT INTO password_reset_tokens (user_id, token, expires_at) VALUES (?, ?, ?)");
-        $stmt->bind_param("iss", $user['id'], $token, $expires);
-        $stmt->execute();
+        $stmt->execute([$user['id'], $token, $expires]);
 
         // [DEV/DEMO MODE] Simulate email by outputting the link directly to the screen.
         // In production, you would use PHPMailer here.

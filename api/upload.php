@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validate user still exists (in case of DB resets during dev)
     $userCheck = $conn->query("SELECT id FROM users WHERE id = $user_id");
-    if (!$userCheck || $userCheck->num_rows === 0) {
+    if (!$userCheck || $userCheck->rowCount() === 0) {
         session_destroy();
         die("<h1 style='color:red;'>[ERROR] Invalid Session. Your user account was not found in the database. Please log out and log back in.</h1><a href='../index.php'>Go to Login</a>");
     }
@@ -41,17 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (move_uploaded_file($file['tmp_name'], $target_file)) {
         $db_path = 'uploads/' . $new_filename;
 
-        $category = isset($_POST['category']) ? $conn->real_escape_string($_POST['category']) : 'Notes';
+        $category = isset($_POST['category']) ? $_POST['category'] : 'Notes';
         $stmt = $conn->prepare("INSERT INTO notes (user_id, subject_id, unit_number, title, file_path, file_type, category) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("iiissss", $user_id, $subject_id, $unit_number, $title, $db_path, $file_ext, $category);
         
-        if ($stmt->execute()) {
+        if ($stmt->execute([$user_id, $subject_id, $unit_number, $title, $db_path, $file_ext, $category])) {
             $redirect = "../subject.php?id=" . $subject_id;
             if ($unit_number) $redirect .= "&unit=" . $unit_number;
             header("Location: $redirect");
             exit();
         } else {
-            die("<h1 style='color:red;'>[DB ERROR] " . $conn->error . "</h1>");
+            $err = $conn->errorInfo();
+            die("<h1 style='color:red;'>[DB ERROR] " . htmlspecialchars($err[2] ?? 'Unknown error') . "</h1>");
         }
     } else {
         die("<h1 style='color:red;'>[SYSTEM ERROR] File transfer failed.</h1>");

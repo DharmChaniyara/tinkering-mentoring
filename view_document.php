@@ -15,9 +15,8 @@ $stmt = $conn->prepare("SELECT notes.*, users.name as uploader_name, subjects.na
                          JOIN subjects ON notes.subject_id = subjects.id
                          LEFT JOIN units ON notes.subject_id = units.subject_id AND notes.unit_number = units.unit_number
                          WHERE notes.id = ?");
-$stmt->bind_param("i", $note_id);
-$stmt->execute();
-$note = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$note_id]);
+$note = $stmt->fetch();
 
 if (!$note) {
     header("Location: dashboard.php");

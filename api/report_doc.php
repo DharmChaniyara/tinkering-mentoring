@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     $note_id = (int)$_POST['note_id'];
-    $reason = $conn->real_escape_string($_POST['reason'] ?? '');
-    $details = $conn->real_escape_string(trim($_POST['details'] ?? ''));
+    $reason = $_POST['reason'] ?? '';
+    $details = trim($_POST['details'] ?? '');
 
     if (empty($note_id) || empty($reason)) {
         header("Location: ../view_document.php?id=$note_id&error=Missing+fields");
@@ -20,9 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $stmt = $conn->prepare("INSERT INTO reported_documents (user_id, note_id, reason, details) VALUES (?, ?, ?, ?)");
     if ($stmt) {
-        $stmt->bind_param("iiss", $user_id, $note_id, $reason, $details);
-        $stmt->execute();
-        $stmt->close();
+        $stmt->execute([$user_id, $note_id, $reason, $details]);
         header("Location: ../view_document.php?id=$note_id&msg=Report+submitted");
     } else {
         header("Location: ../view_document.php?id=$note_id&error=Unable+to+submit+report");

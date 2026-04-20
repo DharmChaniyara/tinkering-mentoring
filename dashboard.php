@@ -8,7 +8,7 @@ require_once 'db_connect.php';
 
 // Fetch all subjects
 $stmt = $conn->query("SELECT * FROM subjects ORDER BY type ASC, name ASC");
-$all_subjects = $stmt->fetch_all(MYSQLI_ASSOC);
+$all_subjects = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $theory_subjects = [];
 $practical_subjects = [];
@@ -27,7 +27,7 @@ $notes_data = $conn->query("SELECT notes.*, users.name as uploader_name, subject
                             JOIN users ON notes.user_id = users.id 
                             JOIN subjects ON notes.subject_id = subjects.id 
                             ORDER BY notes.uploaded_at DESC");
-$all_notes = $notes_data ? $notes_data->fetch_all(MYSQLI_ASSOC) : [];
+$all_notes = $notes_data ? $notes_data->fetchAll(PDO::FETCH_ASSOC) : [];
 $cat_notes = ['Notes' => [], 'PYQs' => [], 'Assignments' => []];
 foreach ($all_notes as $n) {
     // If category field is missing from DB (prior to migration), array key will be empty/null, so we default to 'Notes'
@@ -37,8 +37,8 @@ foreach ($all_notes as $n) {
 }
 
 // Stats
-$total_notes = $conn->query("SELECT COUNT(*) as c FROM notes")->fetch_assoc()['c'] ?? 0;
-$total_users = $conn->query("SELECT COUNT(*) as c FROM users")->fetch_assoc()['c'] ?? 0;
+$total_notes = $conn->query("SELECT COUNT(*) as c FROM notes")->fetch(PDO::FETCH_ASSOC)['c'] ?? 0;
+$total_users = $conn->query("SELECT COUNT(*) as c FROM users")->fetch(PDO::FETCH_ASSOC)['c'] ?? 0;
 $total_subjects = count($all_subjects);
 
 $active_page = 'dashboard';

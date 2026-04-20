@@ -11,9 +11,8 @@ $unit_filter = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
 
 // Fetch subject
 $stmt = $conn->prepare("SELECT * FROM subjects WHERE id = ?");
-$stmt->bind_param("i", $subject_id);
-$stmt->execute();
-$subject = $stmt->get_result()->fetch_assoc();
+$stmt->execute([$subject_id]);
+$subject = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$subject) {
     die("<h1 style='color:red; padding:2rem;'>Subject not found.</h1><a href='dashboard.php'>← Dashboard</a>");
@@ -26,26 +25,22 @@ $query = "SELECT notes.*, users.name as uploader_name, units.unit_name
           LEFT JOIN units ON notes.subject_id = units.subject_id AND notes.unit_number = units.unit_number
           WHERE notes.subject_id = ?";
 $params = [$subject_id];
-$types = "i";
 
 if ($unit_filter > 0) {
     $query .= " AND notes.unit_number = ?";
     $params[] = $unit_filter;
-    $types .= "i";
 }
 
 $query .= " ORDER BY notes.uploaded_at DESC";
 
 $stmt = $conn->prepare($query);
-$stmt->bind_param($types, ...$params);
-$stmt->execute();
-$notes = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->execute($params);
+$notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get ALL defined units/practicals for this subject from syllabus (not just those with notes)
 $stmt = $conn->prepare("SELECT unit_number, unit_name FROM units WHERE subject_id = ? ORDER BY unit_number ASC");
-$stmt->bind_param("i", $subject_id);
-$stmt->execute();
-$units_result = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmt->execute([$subject_id]);
+$units_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $active_page = 'resources';
 $current_document_name = null;

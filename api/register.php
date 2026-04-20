@@ -27,19 +27,17 @@ if ($password !== $confirm) {
 
 // Check if email already registered
 $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
-$stmt->bind_param("s", $email);
-$stmt->execute();
-if ($stmt->get_result()->num_rows > 0) {
+$stmt->execute([$email]);
+if ($stmt->rowCount() > 0) {
     fail('This email is already registered. Please log in.');
 }
 
 // Insert new user
 $hash = password_hash($password, PASSWORD_BCRYPT);
 $stmt = $conn->prepare("INSERT INTO users (name, email, password_hash) VALUES (?,?,?)");
-$stmt->bind_param("sss", $name, $email, $hash);
 
-if ($stmt->execute()) {
-    $_SESSION['user_id']   = $conn->insert_id;
+if ($stmt->execute([$name, $email, $hash])) {
+    $_SESSION['user_id']   = $conn->lastInsertId();
     $_SESSION['user_name'] = $name;
     header("Location: ../dashboard.php");
     exit();
