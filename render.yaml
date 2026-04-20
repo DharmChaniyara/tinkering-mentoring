@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: tinkering-mentoring
+    env: docker
+    region: frankfurt # You can change this to your preferred region (e.g., oregon)
+    plan: free
+    autoDeploy: false # Deploys will be triggered by GitHub Action webhook
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false

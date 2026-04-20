@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+vendor/
+
+# Environment variables
+.env
+.env.local
+.env.*
+
+# macOS
+.DS_Store
+
+# XAMPP / WAMP specifics
+xampp/
+wamp/
+*.log
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database specifics
+*.sqlite
+*.db
+*.sql
+
+# Uploads and User generated content
+uploads/
+images/uploads/
