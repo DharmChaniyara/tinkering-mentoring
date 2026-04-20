@@ -33,9 +33,10 @@ if ($dbUrl) {
     }
 
     // SSL is required for the Supabase pooler to correctly identify the tenant.
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
-    $username = $user;
-    $password = $pass;
+    // Bake user and pass into DSN, enforce SSL
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;user=$user;password=$pass;sslmode=require";
+    $username = null;
+    $password = null;
 
 } else {
     // Local fallback for development (ensure these are set in your local .env or system)
@@ -45,7 +46,9 @@ if ($dbUrl) {
     $username = getenv("DB_USER") ?: "root";
     $password = getenv("DB_PASS") ?: "";
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;user=$username;password=$password";
+    $username = null;
+    $password = null;
 }
 
 try {
