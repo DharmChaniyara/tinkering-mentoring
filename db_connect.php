@@ -29,10 +29,11 @@ if ($dbUrl) {
 
     // 5. Build the DSN
     if (!$host || !$dbname || !$user) {
-        die("<strong>Configuration Error:</strong> The DATABASE_URL environment variable is present but malformed. Ensure it follows the format: <code>postgresql://user:password@host:port/dbname</code>");
+        die("<strong>Configuration Error:</strong> The DATABASE_URL environment variable is present but malformed.");
     }
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;options='--search_path=public'";
+    // SSL is required for the Supabase pooler to correctly identify the tenant.
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;sslmode=require";
     $username = $user;
     $password = $pass;
 
@@ -44,7 +45,7 @@ if ($dbUrl) {
     $username = getenv("DB_USER") ?: "root";
     $password = getenv("DB_PASS") ?: "";
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;options='--search_path=public'";
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
 }
 
 try {
