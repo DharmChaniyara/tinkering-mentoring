@@ -2,11 +2,37 @@ services:
   - type: web
     name: tinkering-mentoring
     env: docker
-    region: frankfurt # You can change this to your preferred region (e.g., oregon)
+    region: frankfurt
     plan: free
-    autoDeploy: false # Deploys will be triggered by GitHub Action webhook
+    autoDeploy: false
     envVars:
+      # ── Database ─────────────────────────────────────────────────────────────
+      # Full Supabase PostgreSQL URI — format:
+      #   postgresql://postgres.PROJECT_REF:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres
+      # Get it from: Supabase → Project Settings → Database → Connection String → URI
       - key: DATABASE_URL
         sync: false
+
+      # ── Supabase (optional — only needed if using Supabase storage/API) ─────
       - key: SUPABASE_ANON_KEY
         sync: false
+
+      # ── SMTP — Email Sending via Brevo (smtp-relay.brevo.com:587) ───────────
+      # Sign up at https://brevo.com → SMTP & API → Generate SMTP Key
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false   # Your Brevo login email
+      - key: SMTP_PASS
+        sync: false   # Brevo SMTP Key (not your account password)
+      - key: SMTP_FROM
+        value: noreply@gsfcuniversity.ac.in
+      - key: SMTP_NAME
+        value: StudyShare
+
+      # ── App URL — used to build absolute links in emails ─────────────────────
+      # Set this to your actual Render deployment URL after first deploy
+      - key: APP_URL
+        sync: false   # e.g. https://tinkering-mentoring.onrender.com

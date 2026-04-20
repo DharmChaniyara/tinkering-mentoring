@@ -1,0 +1,10 @@
+{
+    "name": "studyshare/app",
+    "description": "StudyShare – GSFC University study material platform",
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

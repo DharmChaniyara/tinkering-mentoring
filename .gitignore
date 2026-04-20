@@ -25,7 +25,7 @@ yarn-error.log*
 # Database specifics
 *.sqlite
 *.db
-*.sql
+# NOTE: *.sql files are intentionally NOT ignored — schema_pg.sql must be committed
 
 # Uploads and User generated content
 uploads/

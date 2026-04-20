@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Auth keys do not match.";
     } else {
         // Verify token again before saving
-        $stmt = $conn->prepare("SELECT user_id FROM password_reset_tokens WHERE token = ? AND expires_at > NOW() AND used = 0");
+        $stmt = $conn->prepare("SELECT user_id FROM password_reset_tokens WHERE token = ? AND expires_at > NOW() AND used = FALSE");
         $stmt->execute([$token]);
         $reset = $stmt->fetch();
         
@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($password, PASSWORD_BCRYPT);
             $stmtUpdate1 = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ?");
             $stmtUpdate1->execute([$hash, $reset['user_id']]);
-            $stmtUpdate2 = $conn->prepare("UPDATE password_reset_tokens SET used = 1 WHERE token = ?");
+            $stmtUpdate2 = $conn->prepare("UPDATE password_reset_tokens SET used = TRUE WHERE token = ?");
             $stmtUpdate2->execute([$token]);
             $success = "Authorization overwritten successfully.";
         } else {
@@ -36,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!$token) {
         $error = "Missing reset token.";
     } else {
-        $stmt = $conn->prepare("SELECT id FROM password_reset_tokens WHERE token = ? AND expires_at > NOW() AND used = 0");
+        $stmt = $conn->prepare("SELECT id FROM password_reset_tokens WHERE token = ? AND expires_at > NOW() AND used = FALSE");
         $stmt->execute([$token]);
         if ($stmt->rowCount() === 0) {
             $error = "Invalid or expired reset token.";
