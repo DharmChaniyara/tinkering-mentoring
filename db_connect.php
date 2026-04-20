@@ -1,36 +1,61 @@
 <?php
-// Retrieve database configuration from environment variable (or `.env` file simulation)
+/**
+ * DB Connect - Robust Version
+ * Safely parses the DATABASE_URL and establishes a PDO PostgreSQL connection.
+ */
+
+// 1. Get the connection string from environment variables
 $dbUrl = getenv("DATABASE_URL");
 
 if ($dbUrl) {
-    // Render/Supabase provides a complete URL: postgresql://[user]:[password]@[host]:[port]/[postgres]
+    // 2. Parse the URL
     $dbopts = parse_url($dbUrl);
-    $servername = $dbopts["host"];
-    $port = $dbopts["port"];
-    $username = $dbopts["user"];
-    $password = $dbopts["pass"];
-    $dbname = ltrim($dbopts["path"], '/');
-    
-    $dsn = "pgsql:host=$servername;port=$port;dbname=$dbname";
+
+    // 3. Robustly extract components with fallbacks to avoid "Undefined array key" warnings
+    $host     = $dbopts["host"] ?? null;
+    $port     = $dbopts["port"] ?? "5432";
+    $user     = $dbopts["user"] ?? null;
+    $pass     = $dbopts["pass"] ?? null;
+    $path     = $dbopts["path"] ?? null;
+    $dbname   = $path ? ltrim($path, '/') : null;
+
+    // 4. DETECT COMMON ERROR: REST API URL vs. Database URI
+    // If it's a Supabase REST URL, it usually doesn't have a 'user' and ends in 'rest/v1/'
+    if (strpos($dbUrl, 'rest/v1') !== false || ($host && strpos($host, 'supabase.co') !== false && !$user)) {
+        die("<strong>Deployment Error:</strong> You have used the <u>Supabase REST API URL</u> instead of the <u>PostgreSQL Connection URI</u>.<br><br>" .
+            "<strong>Fix:</strong> Go to Supabase -> Project Settings -> Database -> Connection String -> URI. <br>" .
+            "Copy the link starting with <code>postgresql://</code> and use that in your Render environment variables.");
+    }
+
+    // 5. Build the DSN
+    if (!$host || !$dbname || !$user) {
+        die("<strong>Configuration Error:</strong> The DATABASE_URL environment variable is present but malformed. Ensure it follows the format: <code>postgresql://user:password@host:port/dbname</code>");
+    }
+
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $username = $user;
+    $password = $pass;
+
 } else {
-    // Local fallback if no DATABASE_URL is provided
-    $servername = getenv("DB_HOST") ?: "127.0.0.1";
+    // Local fallback for development (ensure these are set in your local .env or system)
+    $host     = getenv("DB_HOST") ?: "127.0.0.1";
+    $port     = getenv("DB_PORT") ?: "5432";
+    $dbname   = getenv("DB_NAME") ?: "gsfc_resources";
     $username = getenv("DB_USER") ?: "root";
-    $password = getenv("DB_PASS") ?: ""; 
-    $dbname = getenv("DB_NAME") ?: "gsfc_resources";
-    $port = getenv("DB_PORT") ?: "5432";
-    
-    $dsn = "pgsql:host=$servername;port=$port;dbname=$dbname";
+    $password = getenv("DB_PASS") ?: "";
+
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
 }
 
 try {
-    // Create PDO connection for PostgreSQL
+    // 6. Establish Connection
     $conn = new PDO($dsn, $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        // Since the rest of the codebase uses fetch_assoc(), we set the default fetch mode
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
+        PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES   => false,
     ]);
 } catch (PDOException $e) {
-    die("Database Connection failed: " . $e->getMessage());
+    // Detailed error only for debugging; in production, you might want a generic message
+    die("<strong>Database Connection failed:</strong> " . $e->getMessage());
 }
 ?>
