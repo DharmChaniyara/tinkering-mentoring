@@ -14,8 +14,8 @@ if ($dbUrl) {
     // 3. Robustly extract components with fallbacks to avoid "Undefined array key" warnings
     $host     = $dbopts["host"] ?? null;
     $port     = $dbopts["port"] ?? "5432";
-    $user     = $dbopts["user"] ?? null;
-    $pass     = $dbopts["pass"] ?? null;
+    $user     = isset($dbopts["user"]) ? urldecode($dbopts["user"]) : null;
+    $pass     = isset($dbopts["pass"]) ? urldecode($dbopts["pass"]) : null;
     $path     = $dbopts["path"] ?? null;
     $dbname   = $path ? ltrim($path, '/') : null;
 
@@ -32,7 +32,7 @@ if ($dbUrl) {
         die("<strong>Configuration Error:</strong> The DATABASE_URL environment variable is present but malformed. Ensure it follows the format: <code>postgresql://user:password@host:port/dbname</code>");
     }
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;options='--search_path=public'";
     $username = $user;
     $password = $pass;
 
@@ -44,7 +44,7 @@ if ($dbUrl) {
     $username = getenv("DB_USER") ?: "root";
     $password = getenv("DB_PASS") ?: "";
 
-    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+    $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;options='--search_path=public'";
 }
 
 try {
