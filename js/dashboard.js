@@ -166,7 +166,9 @@ function setupUploadForm() {
       closeModal();
       window.location.href = `/subject?id=${data.subjectId}` + (data.unitNumber ? `&unit=${data.unitNumber}` : '');
     } else {
-      alert('Upload failed: ' + (data.error || 'Unknown error'));
+      const msg = data.error || 'Unknown error';
+      const detail = data.detail ? `\n\nDetail: ${data.detail}` : '';
+      alert('Upload failed: ' + msg + detail);
     }
   });
 }

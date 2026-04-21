@@ -22,7 +22,8 @@ const handler = async function handler(req, res) {
   try {
     [fields, files] = await form.parse(req);
   } catch (e) {
-    return res.status(400).json({ error: 'Failed to parse uploaded file.' });
+    console.error('[Formidable]', e);
+    return res.status(400).json({ error: 'Failed to parse uploaded file: ' + e.message });
   }
 
   const file = files.file?.[0];
