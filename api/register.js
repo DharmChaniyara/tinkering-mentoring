@@ -80,12 +80,15 @@ module.exports = async function handler(req, res) {
     .select('id, name')
     .single();
 
-  if (error) return res.status(500).json({ error: 'Registration failed. Please try again.' });
+  if (error) {
+    console.error('[Register] DB insert error:', error.message, error.code);
+    return res.status(500).json({ error: 'Registration failed. Please try again.' });
+  }
 
-  // Send welcome email (non-blocking)
+  // Send welcome email (fully non-blocking — never crashes registration)
   const appUrl = process.env.APP_URL || 'https://your-app.vercel.app';
   sendWelcomeEmail(email, name, appUrl).catch((e) =>
-    console.error('[Mailer] Welcome email failed:', e.message)
+    console.error('[Mailer] Welcome email failed (non-fatal):', e.message)
   );
 
   return res.status(200).json({

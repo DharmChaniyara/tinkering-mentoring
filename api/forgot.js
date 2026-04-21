@@ -1,18 +1,18 @@
-// api/forgot.js — Password reset: generate token + send email
-const crypto = require('crypto');
+// api/forgot.js — Password reset: generate 6-digit OTP + send email
 const { Resend } = require('resend');
 const { supabase } = require('../backend/lib/supabase');
 const { handleCors } = require('../backend/lib/auth');
 
-async function sendResetEmail(toEmail, toName, resetLink) {
+// ── Email Helper ─────────────────────────────────────────────────────────────
+async function sendOtpEmail(toEmail, toName, otp) {
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from   = process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>';
   const safeName = (toName || 'Student').replace(/[<>&"]/g, '');
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from,
     to: toEmail,
-    subject: 'Reset Your StudyShare Password',
+    subject: `${otp} is your StudyShare password reset code`,
     html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#0d0d0d;font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#0d0d0d;padding:40px 20px;">
@@ -24,42 +24,45 @@ async function sendResetEmail(toEmail, toName, resetLink) {
         </td></tr>
         <tr><td style="padding:40px;">
           <h2 style="margin:0 0 12px;font-size:20px;color:#f9fafb;">Password Reset Request</h2>
-          <p style="margin:0 0 20px;font-size:15px;color:#9ca3af;line-height:1.6;">
+          <p style="margin:0 0 28px;font-size:15px;color:#9ca3af;line-height:1.6;">
             Hi <strong style="color:#e5e7eb;">${safeName}</strong>,<br><br>
-            We received a request to reset your StudyShare password.
-            Click below to set a new password. This link expires in <strong>1 hour</strong>.
+            Use this 6-digit code to reset your password. It expires in <strong style="color:#e5e7eb;">10 minutes</strong>.
           </p>
-          <table cellpadding="0" cellspacing="0" style="margin:28px 0;"><tr><td align="center">
-            <a href="${resetLink}" style="display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;text-decoration:none;border-radius:8px;font-size:15px;font-weight:600;">
-              Reset My Password
-            </a>
-          </td></tr></table>
-          <p style="margin:0 0 16px;font-size:13px;color:#6b7280;">If the button doesn't work, copy this link:</p>
-          <p style="margin:0 0 24px;font-size:12px;word-break:break-all;">
-            <a href="${resetLink}" style="color:#818cf8;">${resetLink}</a>
-          </p>
+
+          <!-- OTP Code Block -->
+          <table cellpadding="0" cellspacing="0" width="100%" style="margin:0 0 32px;">
+            <tr><td align="center">
+              <div style="display:inline-block;background:#1f2937;border:2px solid #6366f1;border-radius:12px;padding:20px 40px;">
+                <span style="font-size:42px;font-weight:800;letter-spacing:12px;color:#a5b4fc;font-family:'Courier New',monospace;">${otp}</span>
+              </div>
+            </td></tr>
+          </table>
+
           <hr style="border:none;border-top:1px solid #1f2937;margin:24px 0;">
           <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.6;">
-            If you didn't request this, you can safely ignore this email.<br>— The StudyShare Team
+            If you didn't request this, you can safely ignore this email. The code will expire automatically.<br>
+            — The StudyShare Team
           </p>
         </td></tr>
         <tr><td style="background:#0d0d0d;padding:20px 40px;text-align:center;">
-          <p style="margin:0;font-size:11px;color:#374151;">© 2024 StudyShare · GSFC University</p>
+          <p style="margin:0;font-size:11px;color:#374151;">© 2025 StudyShare · GSFC University</p>
         </td></tr>
       </table>
     </td></tr>
   </table>
 </body></html>`,
   });
+
+  if (error) throw new Error(error.message);
 }
 
+// ── Handler ───────────────────────────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { email } = req.body || {};
-  // Always respond generically to prevent email enumeration
-  const genericMsg = 'If an account with that email exists, a reset link has been sent. Check your inbox.';
+  const genericMsg = 'If an account with that email exists, a reset code has been sent to your inbox.';
 
   if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(200).json({ message: genericMsg });
@@ -72,26 +75,23 @@ module.exports = async function handler(req, res) {
     .maybeSingle();
 
   if (user) {
-    // Invalidate existing tokens
+    // Invalidate old OTPs
     await supabase
       .from('password_reset_tokens')
       .update({ used: true })
       .eq('user_id', user.id)
       .eq('used', false);
 
-    // Create new token
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 3600 * 1000).toISOString();
+    // Generate 6-digit numeric OTP (100000 – 999999)
+    const otp = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString(); // 10 min
 
     await supabase
       .from('password_reset_tokens')
-      .insert({ user_id: user.id, token, expires_at: expiresAt });
+      .insert({ user_id: user.id, token: otp, expires_at: expiresAt });
 
-    const appUrl = process.env.APP_URL || 'https://your-app.vercel.app';
-    const resetLink = `${appUrl}/reset_password?token=${token}`;
-
-    sendResetEmail(email, user.name, resetLink).catch((e) =>
-      console.error('[Mailer] Reset email failed:', e.message)
+    sendOtpEmail(email, user.name, otp).catch((e) =>
+      console.error('[Mailer] OTP email failed:', e.message)
     );
   }
 
