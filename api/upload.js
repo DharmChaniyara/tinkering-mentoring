@@ -6,9 +6,9 @@ const { supabase } = require('../backend/lib/supabase');
 const { verifyRequest, handleCors } = require('../backend/lib/auth');
 
 // Disable Vercel's default body parser — formidable handles it
-module.exports.config = { api: { bodyParser: false } };
+// NOTE: config must be attached AFTER the handler is assigned below
 
-module.exports = async function handler(req, res) {
+const handler = async function handler(req, res) {
   if (handleCors(req, res)) return;
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
@@ -81,3 +81,7 @@ module.exports = async function handler(req, res) {
 
   return res.status(200).json({ success: true, note, subjectId, unitNumber });
 };
+
+// Attach config AFTER handler is defined so it isn't overwritten
+handler.config = { api: { bodyParser: false } };
+module.exports = handler;
