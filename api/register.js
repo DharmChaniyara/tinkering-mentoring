@@ -1,8 +1,8 @@
 // api/register.js — New user registration
 const bcrypt = require('bcryptjs');
 const { Resend } = require('resend');
-const { supabase } = require('../lib/supabase');
-const { signToken, handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { signToken, handleCors } = require('../backend/lib/auth');
 
 async function sendWelcomeEmail(toEmail, toName, appUrl) {
   const resend = new Resend(process.env.RESEND_API_KEY);

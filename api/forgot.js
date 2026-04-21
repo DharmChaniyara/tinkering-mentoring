@@ -1,8 +1,8 @@
 // api/forgot.js — Password reset: generate token + send email
 const crypto = require('crypto');
 const { Resend } = require('resend');
-const { supabase } = require('../lib/supabase');
-const { handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { handleCors } = require('../backend/lib/auth');
 
 async function sendResetEmail(toEmail, toName, resetLink) {
   const resend = new Resend(process.env.RESEND_API_KEY);

@@ -1,7 +1,7 @@
 // api/auth.js — Login, Google OAuth, Demo login
 const bcrypt = require('bcryptjs');
-const { supabase } = require('../lib/supabase');
-const { signToken, handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { signToken, handleCors } = require('../backend/lib/auth');
 
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;

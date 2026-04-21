@@ -1,6 +1,6 @@
 // api/request_doc.js — Submit a document request
-const { supabase } = require('../lib/supabase');
-const { verifyRequest, handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { verifyRequest, handleCors } = require('../backend/lib/auth');
 
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;

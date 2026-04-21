@@ -2,8 +2,8 @@
 const formidable = require('formidable');
 const fs = require('fs');
 const path = require('path');
-const { supabase } = require('../lib/supabase');
-const { verifyRequest, handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { verifyRequest, handleCors } = require('../backend/lib/auth');
 
 // Disable Vercel's default body parser — formidable handles it
 module.exports.config = { api: { bodyParser: false } };

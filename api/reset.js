@@ -1,7 +1,7 @@
 // api/reset.js — Apply new password with a valid reset token
 const bcrypt = require('bcryptjs');
-const { supabase } = require('../lib/supabase');
-const { handleCors } = require('../lib/auth');
+const { supabase } = require('../backend/lib/supabase');
+const { handleCors } = require('../backend/lib/auth');
 
 module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;
