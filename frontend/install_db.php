@@ -26,10 +26,10 @@ if ($provided !== $installSecret) {
 }
 
 // ── Load DB connection ────────────────────────────────────────────────────────
-require_once __DIR__ . '/db_connect.php';
+require_once __DIR__ . '/../backend/db_connect.php';
 
 // ── Read the PostgreSQL schema file ──────────────────────────────────────────
-$schemaFile = __DIR__ . '/schema_pg.sql';
+$schemaFile = __DIR__ . '/../backend/schema_pg.sql';
 if (!file_exists($schemaFile)) {
     die(renderPage('Error', '<div class="card error"><h2>❌ schema_pg.sql not found</h2></div>'));
 }

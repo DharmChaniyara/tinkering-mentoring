@@ -13,7 +13,7 @@ $password =      $_POST['password']         ?? '';
 $confirm  =      $_POST['confirm_password'] ?? '';
 
 function fail(string $msg): never {
-    header('Location: ../index.php?tab=register&error=' . urlencode($msg));
+    header('Location: ../../frontend/index.php?tab=register&error=' . urlencode($msg));
     exit();
 }
 
@@ -129,6 +129,6 @@ HTML;
 sendMail($email, $name, 'Welcome to StudyShare! 🎓', $htmlBody);
 
 // ── Redirect to dashboard ─────────────────────────────────────────────────────
-header('Location: ../dashboard.php');
+header('Location: ../../frontend/dashboard.php');
 exit();
 ?>

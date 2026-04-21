@@ -1,5 +1,5 @@
 <?php
-require_once 'db_connect.php';
+require_once '../backend/db_connect.php';
 
 $token = $_GET['token'] ?? '';
 $error = '';

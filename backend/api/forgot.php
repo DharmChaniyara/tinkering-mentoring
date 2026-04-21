@@ -9,14 +9,14 @@ require_once '../db_connect.php';
 require_once '../includes/mailer.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../forgot_password.php');
+    header('Location: ../../frontend/forgot_password.php');
     exit();
 }
 
 $email = strtolower(trim($_POST['email'] ?? ''));
 
 if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    header('Location: ../forgot_password.php?msg=' . urlencode('Please enter a valid email address.'));
+    header('Location: ../../frontend/forgot_password.php?msg=' . urlencode('Please enter a valid email address.'));
     exit();
 }
 
@@ -124,6 +124,6 @@ HTML;
     sendMail($email, $user['name'], 'Reset Your StudyShare Password', $htmlBody);
 }
 
-header('Location: ../forgot_password.php?msg=' . urlencode($genericMsg));
+header('Location: ../../frontend/forgot_password.php?msg=' . urlencode($genericMsg));
 exit();
 ?>

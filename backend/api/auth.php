@@ -23,7 +23,7 @@ if ($action === 'login') {
         redirect('login', 'Invalid email or password.');
     }
     startSession($user['id'], $user['name']);
-    header("Location: ../dashboard.php"); exit();
+    header("Location: ../../frontend/dashboard.php"); exit();
 }
 
 // ─── GOOGLE OAUTH ────────────────────────────────────────────────────────────
@@ -62,7 +62,7 @@ if ($action === 'google') {
         $stmt->execute([$google_id, $name, $email, $pic]);
         startSession($conn->lastInsertId(), $name);
     }
-    header("Location: ../dashboard.php"); exit();
+    header("Location: ../../frontend/dashboard.php"); exit();
 }
 
 // ─── HELPERS ─────────────────────────────────────────────────────────────────
@@ -78,7 +78,7 @@ function loginOrCreateUser($google_id, $email, $name) {
         $stmt->execute([$google_id, $name, $email]);
         startSession($conn->lastInsertId(), $name);
     }
-    header("Location: ../dashboard.php"); exit();
+    header("Location: ../../frontend/dashboard.php"); exit();
 }
 
 function startSession($id, $name) {
@@ -87,7 +87,7 @@ function startSession($id, $name) {
 }
 
 function redirect($tab, $msg) {
-    header("Location: ../index.php?tab=" . urlencode($tab) . "&error=" . urlencode($msg));
+    header("Location: ../../frontend/index.php?tab=" . urlencode($tab) . "&error=" . urlencode($msg));
     exit();
 }
 ?>

@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
-require_once 'db_connect.php';
+require_once '../backend/db_connect.php';
 
 $note_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -44,7 +44,7 @@ $current_document_name = $note['title'];
 
 <div class="app-layout">
     <!-- Sidebar -->
-    <?php include 'includes/sidebar.php'; ?>
+    <?php include '../backend/includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -162,7 +162,7 @@ $current_document_name = $note['title'];
 </div><!-- /app-layout -->
 
 <!-- AI Assistant (context-aware) -->
-<?php include 'includes/ai_assistant.php'; ?>
+<?php include '../backend/includes/ai_assistant.php'; ?>
 
 <!-- REPORT DOC MODAL -->
 <div id="reportDocModal" class="modal-overlay">
@@ -171,7 +171,7 @@ $current_document_name = $note['title'];
             <h2 style="color:var(--danger);" class="gradient-text">Report Resource</h2>
             <button class="modal-close" onclick="document.getElementById('reportDocModal').classList.remove('open')">✕</button>
         </div>
-        <form action="api/report_doc.php" method="POST">
+        <form action="../backend/api/report_doc.php" method="POST">
             <input type="hidden" name="note_id" value="<?= $note_id ?>">
             <div class="form-group">
                 <label>Reason for reporting</label>

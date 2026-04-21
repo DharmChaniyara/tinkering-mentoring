@@ -42,7 +42,7 @@ $user_initials = strtoupper(substr($user_name, 0, 2));
                 <div class="role">CSE Student</div>
             </div>
         </div>
-        <a href="api/logout.php" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="margin-top:8px; font-size:0.8rem;">
+        <a href="../backend/api/logout.php" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="margin-top:8px; font-size:0.8rem;">
             Log Out
         </a>
     </div>

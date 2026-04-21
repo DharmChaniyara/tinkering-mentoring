@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
-require_once 'db_connect.php';
+require_once '../backend/db_connect.php';
 
 $subject_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 $unit_filter = isset($_GET['unit']) ? (int)$_GET['unit'] : 0;
@@ -60,7 +60,7 @@ $current_document_name = null;
 
 <div class="app-layout">
     <!-- Sidebar -->
-    <?php include 'includes/sidebar.php'; ?>
+    <?php include '../backend/includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -160,7 +160,7 @@ $current_document_name = null;
 </div><!-- /app-layout -->
 
 <!-- AI Assistant -->
-<?php include 'includes/ai_assistant.php'; ?>
+<?php include '../backend/includes/ai_assistant.php'; ?>
 
 <script src="js/theme.js"></script>
 <script src="js/app.js"></script>

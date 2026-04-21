@@ -20,7 +20,7 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 COPY . /var/www/html/
 
 # Install PHP dependencies (PHPMailer) via Composer
-RUN composer install --working-dir=/var/www/html --no-interaction --no-dev --optimize-autoloader
+RUN composer install --working-dir=/var/www/html/backend --no-interaction --no-dev --optimize-autoloader
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/html/

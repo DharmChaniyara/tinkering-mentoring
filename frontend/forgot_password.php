@@ -27,7 +27,7 @@ $msg = $_GET['msg'] ?? '';
                 <div class="alert alert-success"><?= htmlspecialchars($msg) ?></div>
             <?php endif; ?>
 
-            <form action="api/forgot.php" method="POST">
+            <form action="../backend/api/forgot.php" method="POST">
                 <p style="margin-bottom: 1.2rem; font-size: 0.85rem; color:var(--text-muted);">
                     Enter your university email address. A password reset link will be generated.
                 </p>

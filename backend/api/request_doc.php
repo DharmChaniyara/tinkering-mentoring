@@ -3,7 +3,7 @@ session_start();
 require_once '../db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
-    header("Location: ../index.php");
+    header("Location: ../../frontend/index.php");
     exit();
 }
 
@@ -14,18 +14,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $details = trim($_POST['details'] ?? '');
 
     if (empty($title) || empty($subject_id)) {
-        header("Location: ../dashboard.php?error=Missing+fields");
+        header("Location: ../../frontend/dashboard.php?error=Missing+fields");
         exit();
     }
 
     $stmt = $conn->prepare("INSERT INTO document_requests (user_id, subject_id, title, details) VALUES (?, ?, ?, ?)");
     if ($stmt) {
         $stmt->execute([$user_id, $subject_id, $title, $details]);
-        header("Location: ../dashboard.php?msg=Request+submitted");
+        header("Location: ../../frontend/dashboard.php?msg=Request+submitted");
     } else {
         // Table mighty not exist if migration failed, gracefully fail
-        header("Location: ../dashboard.php?error=Unable+to+submit+request");
+        header("Location: ../../frontend/dashboard.php?error=Unable+to+submit+request");
     }
 } else {
-    header("Location: ../dashboard.php");
+    header("Location: ../../frontend/dashboard.php");
 }

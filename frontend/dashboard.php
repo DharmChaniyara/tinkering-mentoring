@@ -4,7 +4,7 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
-require_once 'db_connect.php';
+require_once '../backend/db_connect.php';
 
 // Fetch all subjects
 $stmt = $conn->query("SELECT * FROM subjects ORDER BY type ASC, name ASC");
@@ -59,7 +59,7 @@ $active_page = 'dashboard';
 
 <div class="app-layout">
     <!-- Sidebar -->
-    <?php include 'includes/sidebar.php'; ?>
+    <?php include '../backend/includes/sidebar.php'; ?>
 
     <!-- Main Content -->
     <div class="main-content">
@@ -285,7 +285,7 @@ $active_page = 'dashboard';
             <button class="modal-close" onclick="closeModal()">✕</button>
         </div>
 
-        <form action="api/upload.php" method="POST" enctype="multipart/form-data" id="uploadForm">
+        <form action="../backend/api/upload.php" method="POST" enctype="multipart/form-data" id="uploadForm">
             <!-- Dropzone -->
             <div class="dropzone" id="dropzone">
                 <span class="drop-icon">📁</span>
@@ -346,7 +346,7 @@ $active_page = 'dashboard';
 </div>
 
 <!-- AI Assistant -->
-<?php $current_document_name = null; include 'includes/ai_assistant.php'; ?>
+<?php $current_document_name = null; include '../backend/includes/ai_assistant.php'; ?>
 
 <!-- SEARCH & REQUEST PANEL -->
 <div id="searchPanel" class="slide-panel">
@@ -379,7 +379,7 @@ $active_page = 'dashboard';
             <h2 class="gradient-text">Request Resource</h2>
             <button class="modal-close" onclick="document.getElementById('requestDocModal').classList.remove('open')">✕</button>
         </div>
-        <form action="api/request_doc.php" method="POST">
+        <form action="../backend/api/request_doc.php" method="POST">
             <div class="form-group">
                 <label>Resource Title / Topic</label>
                 <input type="text" name="title" class="form-input" required placeholder="e.g. 2023 End Sem Paper">
@@ -445,7 +445,7 @@ $active_page = 'dashboard';
         if (!sid) { unitSelect.innerHTML = '<option value="">-- Select subject first --</option>'; return; }
 
         try {
-            const res = await fetch(`api/get_units.php?subject_id=${sid}`);
+            const res = await fetch(`../backend/api/get_units.php?subject_id=${sid}`);
             const units = await res.json();
             if (units.length > 0) {
                 unitSelect.innerHTML = `<option value="">-- Select ${termUnit} --</option>`;
