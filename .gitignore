@@ -1,32 +1,27 @@
-# Dependencies
+# Node.js
 node_modules/
-vendor/
 
-# Environment variables
+# Environment variables — NEVER commit these
 .env
 .env.local
 .env.*
+!.env.local.example
+
+# Vercel build output
+.vercel/
 
 # macOS
 .DS_Store
 
-# XAMPP / WAMP specifics
-xampp/
-wamp/
-*.log
-
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
-# Database specifics
+# User-uploaded files (now stored in Supabase Storage)
+uploads/
+
+# PHP legacy (should not be needed anymore)
+vendor/
 *.sqlite
 *.db
-# NOTE: *.sql files are intentionally NOT ignored — schema_pg.sql must be committed
-
-# Uploads and User generated content
-uploads/
-images/uploads/

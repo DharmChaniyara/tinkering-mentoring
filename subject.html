@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyShare | Subject</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebar-container"></div>
+
+  <div class="main-content">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a id="back-link" href="/dashboard" class="cyber-btn cyber-btn-ghost" style="padding:8px 14px;font-size:0.85rem;">← Dashboard</a>
+        <div>
+          <h3 id="subject-name-h3" style="font-size:1rem;font-weight:700;">Loading…</h3>
+          <p id="subject-code-p" style="font-size:0.75rem;color:var(--text-muted);"></p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️</button>
+        <a id="syllabus-btn" href="#" target="_blank" class="cyber-btn" style="font-size:0.85rem;padding:8px 14px;display:none;">📄 Official Syllabus</a>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="subject-header slide-in-up" style="margin-bottom:1.5rem;">
+        <h1 style="font-size:1.6rem;margin-bottom:4px;"><span class="gradient-text" id="subject-title">Loading…</span></h1>
+        <p style="color:var(--text-muted);" id="subject-meta"></p>
+      </div>
+
+      <!-- Unit Filters -->
+      <div class="unit-filters slide-in-up" id="unit-filters"></div>
+
+      <!-- Notes Grid -->
+      <div class="notes-grid stagger-children" id="notes-grid">
+        <div class="glass-panel" style="grid-column:1/-1;text-align:center;padding:3rem;">
+          <p style="color:var(--text-muted);">Loading resources…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI ASSISTANT placeholder (uses backend/includes/ai_assistant logic) -->
+<div id="ai-placeholder"></div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/subject.js"></script>
+</body>
+</html>

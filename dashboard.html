@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudyShare – Campus Resource Dashboard">
+  <title>StudyShare | Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar (injected by js/auth.js) -->
+  <div id="sidebar-container"></div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <div class="topbar-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="globalSearch" placeholder="Search resources, subjects..." autocomplete="off">
+      </div>
+      <div class="topbar-actions">
+        <button class="cyber-btn cyber-btn-secondary" onclick="document.getElementById('searchPanel').classList.add('open')" style="font-size:0.85rem;padding:8px 18px;margin-right:8px;">
+          <span style="margin-right:6px;">🔍</span>Discovery
+        </button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️</button>
+        <button class="cyber-btn cyber-btn-success" onclick="openModal()" style="font-size:0.85rem;padding:8px 18px;">+ Upload</button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <div class="page-content">
+
+      <!-- Welcome -->
+      <div style="margin-bottom:2rem;" class="slide-in-up">
+        <h1 style="font-size:1.8rem;margin-bottom:4px;">
+          Welcome back, <span class="gradient-text" id="welcome-name">Student</span>
+        </h1>
+        <p style="color:var(--text-muted);font-size:0.95rem;">Access your study materials and resources</p>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="stats-row stagger-children">
+        <div class="stat-card"><div class="stat-icon">📄</div><div class="stat-value" id="stat-notes">...</div><div class="stat-label">Total Resources</div></div>
+        <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="stat-subjects">...</div><div class="stat-label">Subjects</div></div>
+        <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-value" id="stat-users">...</div><div class="stat-label">Contributors</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-value">24/7</div><div class="stat-label">Available</div></div>
+      </div>
+
+      <!-- Notes Carousels -->
+      <div class="carousel-section slide-in-up" id="carousel-section-notes">
+        <div class="carousel-header"><h3>📚 Study Notes</h3><div class="carousel-nav"><button onclick="scrollCarousel('notes-cat',-1)">◀</button><button onclick="scrollCarousel('notes-cat',1)">▶</button></div></div>
+        <div class="carousel-track" id="carousel-notes-cat"></div>
+      </div>
+      <div class="carousel-section slide-in-up" id="carousel-section-pyq">
+        <div class="carousel-header"><h3>📜 Previous Year Questions</h3><div class="carousel-nav"><button onclick="scrollCarousel('pyq-cat',-1)">◀</button><button onclick="scrollCarousel('pyq-cat',1)">▶</button></div></div>
+        <div class="carousel-track" id="carousel-pyq-cat"></div>
+      </div>
+      <div class="carousel-section slide-in-up" id="carousel-section-ass">
+        <div class="carousel-header"><h3>✏️ Assignments &amp; Solved Labs</h3><div class="carousel-nav"><button onclick="scrollCarousel('ass-cat',-1)">◀</button><button onclick="scrollCarousel('ass-cat',1)">▶</button></div></div>
+        <div class="carousel-track" id="carousel-ass-cat"></div>
+      </div>
+
+      <!-- Theory Subjects -->
+      <div class="carousel-section slide-in-up" id="subjects">
+        <div class="carousel-header"><h3>Theory Subjects</h3><div class="carousel-nav"><button onclick="scrollCarousel('theory',-1)">◀</button><button onclick="scrollCarousel('theory',1)">▶</button></div></div>
+        <div class="carousel-track" id="carousel-theory"></div>
+      </div>
+
+      <!-- Practical Subjects -->
+      <div class="carousel-section slide-in-up">
+        <div class="carousel-header"><h3>Practical &amp; Lab Work</h3><div class="carousel-nav"><button onclick="scrollCarousel('practical',-1)">◀</button><button onclick="scrollCarousel('practical',1)">▶</button></div></div>
+        <div class="carousel-track" id="carousel-practical"></div>
+      </div>
+
+    </div><!-- /page-content -->
+  </div><!-- /main-content -->
+</div><!-- /app-layout -->
+
+<!-- UPLOAD MODAL -->
+<div id="uploadModal" class="modal-overlay">
+  <div class="modal-content pop-in">
+    <div class="modal-header">
+      <h2 class="gradient-text">Upload Resource</h2>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <div class="dropzone" id="dropzone">
+        <span class="drop-icon">📁</span>
+        <p>Drag &amp; drop your file here</p>
+        <p class="drop-hint">or click to browse (PDF, DOC, PPT, IMG)</p>
+        <input type="file" name="file" id="fileInput" required style="display:none;">
+      </div>
+      <div id="filePreview" class="preview-card" style="display:none;">
+        <div class="preview-icon" id="previewIcon">📄</div>
+        <div class="preview-details">
+          <span id="previewName" class="name">filename.pdf</span>
+          <span id="previewSize" class="size">2.4 MB</span>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1rem;">
+        <div class="form-group">
+          <label>Category</label>
+          <select name="category" class="form-input" required>
+            <option value="Notes">Study Notes</option>
+            <option value="PYQs">Previous Year Questions (PYQs)</option>
+            <option value="Assignments">Assignments / Labs</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Subject</label>
+          <select name="subject_id" class="form-input" id="subjectSelect" required>
+            <option value="">-- Select Subject --</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label id="unit-label">Syllabus Unit <span style="text-transform:none;color:var(--text-muted)">(Optional)</span></label>
+        <select id="unit-select" name="unit_number" class="form-input">
+          <option value="">-- Select subject first --</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Resource Title</label>
+        <input type="text" name="title" class="form-input" required placeholder="e.g. Unit 1 Complete Notes">
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:1.5rem;">
+        <button type="button" class="cyber-btn cyber-btn-ghost" onclick="closeModal()">Cancel</button>
+        <button type="submit" class="cyber-btn cyber-btn-success">Upload →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- AI ASSISTANT -->
+<div id="ai-placeholder"></div>
+
+<!-- SEARCH PANEL -->
+<div id="searchPanel" class="slide-panel">
+  <div class="panel-header">
+    <h2 class="gradient-text">Search &amp; Request</h2>
+    <button class="modal-close" onclick="document.getElementById('searchPanel').classList.remove('open')">✕</button>
+  </div>
+  <div class="panel-body">
+    <div class="form-group" style="margin-bottom:2rem;">
+      <input type="text" id="advancedSearch" class="form-input" placeholder="Type to search..." autocomplete="off">
+    </div>
+    <div id="advancedSearchResults"><p style="color:var(--text-muted);font-size:0.9rem;text-align:center;">Type above to search across all resources.</p></div>
+    <div class="not-found" style="margin-top:3rem;padding:1.5rem;background:rgba(124,58,237,0.05);border:1px dashed rgba(124,58,237,0.3);border-radius:16px;text-align:center;">
+      <span style="font-size:2rem;margin-bottom:10px;display:block;">🤔</span>
+      <h4 style="margin-bottom:8px;font-size:1rem;">Didn't find what you need?</h4>
+      <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.2rem;">Request a specific document, PYQ, or notes from the community.</p>
+      <button class="cyber-btn cyber-btn-full" onclick="document.getElementById('requestDocModal').classList.add('open')">📝 Request Document</button>
+    </div>
+  </div>
+</div>
+
+<!-- REQUEST DOC MODAL -->
+<div id="requestDocModal" class="modal-overlay">
+  <div class="modal-content pop-in">
+    <div class="modal-header">
+      <h2 class="gradient-text">Request Resource</h2>
+      <button class="modal-close" onclick="document.getElementById('requestDocModal').classList.remove('open')">✕</button>
+    </div>
+    <form id="requestDocForm">
+      <div class="form-group"><label>Resource Title / Topic</label><input type="text" name="title" class="form-input" required placeholder="e.g. 2023 End Sem Paper"></div>
+      <div class="form-group"><label>Subject</label>
+        <select name="subject_id" class="form-input" id="req-subject-select" required><option value="">-- Select Subject --</option></select>
+      </div>
+      <div class="form-group"><label>Additional Details</label><textarea name="details" class="form-input" rows="3" placeholder="Any specific requirements..."></textarea></div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:1.5rem;">
+        <button type="button" class="cyber-btn cyber-btn-ghost" onclick="document.getElementById('requestDocModal').classList.remove('open')">Cancel</button>
+        <button type="submit" class="cyber-btn cyber-btn-success">Submit Request →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/theme.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/auth.js"></script>
+<script src="/js/dashboard.js"></script>
+</body>
+</html>
