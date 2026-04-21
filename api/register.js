@@ -1,20 +1,16 @@
 // api/register.js — New user registration
 const bcrypt = require('bcryptjs');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { supabase } = require('../lib/supabase');
 const { signToken, handleCors } = require('../lib/auth');
 
 async function sendWelcomeEmail(toEmail, toName, appUrl) {
-  const transporter = nodemailer.createTransporter({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const from   = process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>';
   const safeName = toName.replace(/[<>&"]/g, '');
-  await transporter.sendMail({
-    from: `"${process.env.SMTP_NAME || 'StudyShare'}" <${process.env.SMTP_FROM}>`,
+
+  await resend.emails.send({
+    from,
     to: toEmail,
     subject: 'Welcome to StudyShare! 🎓',
     html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>

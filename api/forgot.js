@@ -1,20 +1,16 @@
 // api/forgot.js — Password reset: generate token + send email
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 const { supabase } = require('../lib/supabase');
 const { handleCors } = require('../lib/auth');
 
 async function sendResetEmail(toEmail, toName, resetLink) {
-  const transporter = nodemailer.createTransporter({
-    host: process.env.SMTP_HOST,
-    port: parseInt(process.env.SMTP_PORT || '587'),
-    secure: false,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-  });
-
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const from   = process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>';
   const safeName = (toName || 'Student').replace(/[<>&"]/g, '');
-  await transporter.sendMail({
-    from: `"${process.env.SMTP_NAME || 'StudyShare'}" <${process.env.SMTP_FROM}>`,
+
+  await resend.emails.send({
+    from,
     to: toEmail,
     subject: 'Reset Your StudyShare Password',
     html: `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"></head>
