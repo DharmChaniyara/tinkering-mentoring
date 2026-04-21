@@ -147,17 +147,41 @@ function setupUploadForm() {
   });
   fileInput?.addEventListener('change', () => { if (fileInput.files.length) showFilePreview(fileInput.files[0]); });
 
-  // Form submit via fetch (to handle JWT auth)
+  // Form submit — send file as base64 JSON (reliable on Vercel, no formidable needed)
   document.getElementById('uploadForm')?.addEventListener('submit', async function (e) {
     e.preventDefault();
     const btn = this.querySelector('button[type="submit"]');
+
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput?.files?.[0];
+    if (!file) { alert('Please select a file first.'); return; }
+    if (file.size > 8 * 1024 * 1024) { alert('File size exceeds 8 MB limit.'); return; }
+
     btn.disabled = true; btn.textContent = 'Uploading...';
 
+    // Read file as base64
+    const fileBase64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]); // strip data:...;base64,
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
     const formData = new FormData(this);
+    const payload = {
+      fileBase64,
+      fileName: file.name,
+      mimeType: file.type || 'application/octet-stream',
+      category: formData.get('category') || 'Notes',
+      subject_id: formData.get('subject_id'),
+      title: formData.get('title'),
+      unit_number: formData.get('unit_number') || null,
+    };
+
     const res = await fetch('/api/upload', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${getToken()}` },
-      body: formData,
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+      body: JSON.stringify(payload),
     });
     const data = await res.json();
     btn.disabled = false; btn.textContent = 'Upload →';
