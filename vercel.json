@@ -2,6 +2,41 @@
   "version": 2,
   "cleanUrls": true,
   "trailingSlash": false,
+  "functions": {
+    "backend/api/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/backend/api/$1.js"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/frontend/dashboard.html"
+    },
+    {
+      "source": "/subject",
+      "destination": "/frontend/subject.html"
+    },
+    {
+      "source": "/view_document",
+      "destination": "/frontend/view_document.html"
+    },
+    {
+      "source": "/forgot_password",
+      "destination": "/frontend/forgot_password.html"
+    },
+    {
+      "source": "/reset_password",
+      "destination": "/frontend/reset_password.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/frontend/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/api/(.*)",
