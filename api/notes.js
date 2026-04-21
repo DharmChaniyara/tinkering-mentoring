@@ -13,8 +13,7 @@ module.exports = async function handler(req, res) {
     .select(`
       id, title, file_path, file_type, category, uploaded_at, unit_number, user_id, subject_id,
       users ( name ),
-      subjects ( name ),
-      units ( unit_name )
+      subjects ( name )
     `)
     .order('uploaded_at', { ascending: false });
 
@@ -26,7 +25,10 @@ module.exports = async function handler(req, res) {
   if (unit) query = query.eq('unit_number', parseInt(unit));
 
   const { data, error } = await query;
-  if (error) return res.status(500).json({ error: 'Failed to fetch notes.' });
+  if (error) {
+    console.error('[Notes]', error);
+    return res.status(500).json({ error: 'Failed to fetch notes.', detail: error.message });
+  }
 
   // Flatten joined fields for easier frontend use
   const notes = (data || []).map((n) => ({
@@ -41,7 +43,7 @@ module.exports = async function handler(req, res) {
     subject_id: n.subject_id,
     uploader_name: n.users?.name || 'Unknown',
     subject_name: n.subjects?.name || '',
-    unit_name: n.units?.unit_name || null,
+    unit_name: null,
   }));
 
   // If requesting a single note, return the object directly
