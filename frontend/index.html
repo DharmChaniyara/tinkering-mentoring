@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="StudyShare – log in to access and share study materials at GSFC University.">
+  <title>StudyShare | Login</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="auth-page">
+  <div class="auth-card fade-in">
+    <div class="auth-logo">
+      <h1 class="gradient-text">StudyShare</h1>
+      <p style="color:var(--text-secondary);">Your creative learning and sharing space<br>
+        <span class="mono" style="font-size:0.75rem;color:var(--text-muted);">GSFC University · Semester II</span>
+      </p>
+    </div>
+    <div class="glass-panel">
+      <div id="alert-container" style="display:none;"></div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('google')"   id="tab-google">🔑 Google</button>
+        <button class="auth-tab"        onclick="switchTab('login')"    id="tab-login">Login</button>
+        <button class="auth-tab"        onclick="switchTab('register')" id="tab-register">Register</button>
+      </div>
+      <div class="auth-panel active" id="panel-google">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:1.2rem;">
+          Sign in instantly using your Google account. No password needed.
+        </p>
+        <div id="g_id_onload" data-client_id="224440956520-a290fnc947m1b2njr5cqfnc123346vap.apps.googleusercontent.com" data-callback="handleGoogleSignIn" data-auto_select="false" data-cancel_on_tap_outside="true"></div>
+        <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left" style="display:flex;justify-content:center;margin:1rem 0;"></div>
+        <div class="or-divider">LOCAL DEMO ACCESS</div>
+        <button id="demo-btn" class="cyber-btn" style="width:100%;border-color:var(--input-border);color:var(--text-muted);background:transparent;box-shadow:none;">
+          ⚡ Quick Demo Sign-In [Testing Only]
+        </button>
+      </div>
+      <div class="auth-panel" id="panel-login">
+        <form id="login-form" novalidate>
+          <div class="form-group">
+            <label for="login-email">University Email</label>
+            <input id="login-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="login-pass">Password</label>
+            <input id="login-pass" class="form-input" type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+          </div>
+          <a href="/forgot_password" class="forgot-link">Forgot Password?</a>
+          <button type="submit" class="cyber-btn cyber-btn-full" style="margin-top:0.5rem;">Secure Sign-In</button>
+        </form>
+        <div class="or-divider">or</div>
+        <button onclick="switchTab('google')" class="google-btn">
+          <img src="https://www.gstatic.com/images/branding/googleg/1x/googleg_standard_color_128dp.png" alt="Google">
+          Continue with Google
+        </button>
+      </div>
+      <div class="auth-panel" id="panel-register">
+        <form id="register-form" novalidate>
+          <div class="form-group">
+            <label for="reg-name">Full Name</label>
+            <input id="reg-name" class="form-input" type="text" name="name" placeholder="Your Full Name" required autocomplete="name">
+          </div>
+          <div class="form-group">
+            <label for="reg-email">University Email</label>
+            <input id="reg-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email">
+          </div>
+          <div class="form-group">
+            <label for="reg-pass">Password <span style="color:var(--text-muted)">(min 8 chars)</span></label>
+            <input id="reg-pass" class="form-input" type="password" name="password" placeholder="••••••••" minlength="8" required autocomplete="new-password">
+          </div>
+          <div class="form-group">
+            <label for="reg-confirm">Confirm Password</label>
+            <input id="reg-confirm" class="form-input" type="password" name="confirm_password" placeholder="••••••••" minlength="8" required autocomplete="new-password">
+          </div>
+          <button type="submit" class="cyber-btn cyber-btn-success cyber-btn-full">Create Account</button>
+        </form>
+        <div class="or-divider">already registered?</div>
+        <button onclick="switchTab('login')" class="cyber-btn" style="width:100%;text-align:center;">Log In Instead</button>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:1.5rem;">
+      <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️ Light</button>
+    </div>
+  </div>
+</div>
+<script src="/js/theme.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+  if (getUser()) window.location.href = '/dashboard';
+  const urlParams = new URLSearchParams(location.search);
+  const urlTab = urlParams.get('tab'), urlError = urlParams.get('error'), urlSuccess = urlParams.get('success');
+  if (urlError) showAlert(urlError, 'error');
+  if (urlSuccess) showAlert(urlSuccess, 'success');
+  if (urlTab) switchTab(urlTab);
+  function switchTab(name) {
+    document.querySelectorAll('.auth-tab,.auth-panel').forEach(el => el.classList.remove('active'));
+    document.getElementById('tab-' + name)?.classList.add('active');
+    document.getElementById('panel-' + name)?.classList.add('active');
+  }
+  document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Signing in...';
+    const res = await fetch('/api/auth_manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'login', email: e.target.email.value, password: e.target.password.value }),
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = 'Secure Sign-In';
+    if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
+  });
+  document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true; btn.textContent = 'Creating account...';
+    const body = Object.fromEntries(new FormData(e.target));
+    const res = await fetch('/api/auth_manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...body, action: 'register' }),
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = 'Create Account';
+    if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
+  });
+  document.getElementById('demo-btn').addEventListener('click', async () => {
+    const res = await fetch('/api/auth_manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'demo' }),
+    });
+    const data = await res.json();
+    if (res.ok) handleAuthResponse(data);
+  });
+  async function handleGoogleSignIn(response) {
+    const res = await fetch('/api/auth_manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'google', credential: response.credential }),
+    });
+    const data = await res.json();
+    if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
+  }
+</script>
+</body>
+</html>

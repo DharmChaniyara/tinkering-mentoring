@@ -4,7 +4,7 @@
   "description": "StudyShare – GSFC University study material platform",
   "private": true,
   "scripts": {
-    "deploy": "vercel --prod"
+    "deploy": "npx vercel --prod"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

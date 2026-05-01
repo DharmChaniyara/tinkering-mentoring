@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyShare | My Profile</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
+</head>
+<body>
+<div class="app-layout">
+  <div id="sidebar-container"></div>
+  <div class="main-content">
+    <header class="topbar">
+      <div style="flex:1"></div>
+      <div class="topbar-actions">
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️</button>
+      </div>
+    </header>
+    <div class="page-content">
+      <div class="profile-header slide-in-up" style="display:flex; align-items:center; gap:2rem; margin-bottom:3rem; padding:2rem; background:var(--glass-bg); border-radius:24px; border:1px solid var(--glass-border);">
+        <div class="profile-avatar" id="profile-avatar" style="width:120px; height:120px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800; color:white; box-shadow: 0 0 20px var(--accent-glow);">
+          ??
+        </div>
+        <div class="profile-info">
+          <h1 id="profile-name" style="font-size:2.2rem; margin-bottom:8px;">Loading...</h1>
+          <p id="profile-email" style="color:var(--text-secondary); margin-bottom:12px;">...</p>
+          <div style="display:flex; gap:12px;">
+            <span class="badge badge-admin" id="profile-role" style="display:none;">Admin</span>
+            <div id="user-rating-stars" style="color:#fbbf24; font-size:1.1rem;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stats-row stagger-children" style="margin-bottom:3rem;">
+        <div class="stat-card">
+          <div class="stat-icon">📤</div>
+          <div class="stat-value" id="stat-uploads">0</div>
+          <div class="stat-label">Docs Uploaded</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">📥</div>
+          <div class="stat-value" id="stat-downloads">0</div>
+          <div class="stat-label">Total Downloads</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⭐</div>
+          <div class="stat-value" id="stat-rating">0.0</div>
+          <div class="stat-label">Student Rating</div>
+        </div>
+      </div>
+      <h2 style="margin-bottom:1.5rem;">My Uploaded Documents</h2>
+      <div class="glass-panel" style="padding:0; overflow:hidden;">
+        <div style="overflow-x: auto;">
+          <table style="width:100%; border-collapse:collapse;">
+            <thead style="background:rgba(0,0,0,0.2);">
+              <tr>
+                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Title</th>
+                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Subject</th>
+                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Downloads</th>
+                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Uploaded</th>
+              </tr>
+            </thead>
+            <tbody id="uploads-table-body">
+              <tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">Fetching your uploads...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/theme.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const user = requireAuth();
+    if (!user) return;
+    renderSidebar('profile');
+    try {
+      const res = await fetch('/api/auth_manager?action=profile', { headers: getAuthHeaders() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      document.getElementById('profile-name').textContent = data.user.name;
+      document.getElementById('profile-email').textContent = data.user.email;
+      document.getElementById('profile-avatar').textContent = (data.user.name || 'U').slice(0, 2).toUpperCase();
+      if (data.user.role === 'admin') document.getElementById('profile-role').style.display = 'inline-block';
+      const stars = '⭐'.repeat(Math.round(data.stats.avgRating)) + '☆'.repeat(5 - Math.round(data.stats.avgRating));
+      document.getElementById('user-rating-stars').textContent = `${stars} (${data.stats.avgRating})`;
+      document.getElementById('stat-uploads').textContent = data.stats.uploadCount;
+      document.getElementById('stat-downloads').textContent = data.stats.totalDownloads;
+      document.getElementById('stat-rating').textContent = data.stats.avgRating;
+      const tbody = document.getElementById('uploads-table-body');
+      tbody.innerHTML = '';
+      if (data.documents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">No documents uploaded yet.</td></tr>';
+      } else {
+        data.documents.forEach(doc => {
+          const date = new Date(doc.uploaded_at).toLocaleDateString();
+          tbody.innerHTML += `
+            <tr style="border-bottom:1px solid var(--glass-border);">
+              <td style="padding:1rem;"><a href="/view_document?id=${doc.id}" style="color:var(--accent); text-decoration:none; font-weight:600;">${escHtml(doc.title)}</a></td>
+              <td style="padding:1rem;">${escHtml(doc.subject_name)}</td>
+              <td style="padding:1rem;">${doc.download_count}</td>
+              <td style="padding:1rem;">${date}</td>
+            </tr>
+          `;
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      showAlert('Failed to load profile data.');
+    }
+  });
+</script>
+</body>
+</html>
