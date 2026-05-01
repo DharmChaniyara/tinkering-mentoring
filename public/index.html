@@ -68,6 +68,9 @@
           <div class="form-group" id="reg-otp-group" style="display:none;">
             <label for="reg-otp">Verification Code (sent to email)</label>
             <input id="reg-otp" class="form-input" type="text" name="otp" placeholder="123456" maxlength="6">
+            <div style="text-align:right;margin-top:0.5rem;">
+              <a href="#" id="resend-reg-otp" class="forgot-link" style="font-size:0.8rem;">Resend Code?</a>
+            </div>
           </div>
           <button type="submit" id="reg-submit-btn" class="cyber-btn cyber-btn-success cyber-btn-full">Create Account</button>
         </form>
@@ -144,6 +147,20 @@
       btn.disabled = false; btn.textContent = 'Verify & Create Account';
       if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
     }
+  });
+  document.getElementById('resend-reg-otp').addEventListener('click', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('reg-email').value;
+    const link = e.target;
+    link.style.pointerEvents = 'none'; link.textContent = 'Sending...';
+    const res = await fetch('/api/auth_manager', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'send_reg_otp', email }),
+    });
+    const data = await res.json();
+    link.style.pointerEvents = ''; link.textContent = 'Resend Code?';
+    if (res.ok) showAlert(data.message, 'success'); else showAlert(data.error);
   });
   async function handleGoogleSignIn(response) {
     const res = await fetch('/api/auth_manager', {

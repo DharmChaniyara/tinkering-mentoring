@@ -113,7 +113,7 @@ module.exports = async function handler(req, res) {
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expires = new Date(Date.now() + 600000); // 10 minutes
-        await supabase.from('password_resets').insert({ email: fEmail, token: otp, expires_at: expires });
+        await supabase.from('password_resets').upsert({ email: fEmail, token: otp, expires_at: expires }, { onConflict: 'email' });
         
         // Send Email via Resend
         if (process.env.RESEND_API_KEY) {
