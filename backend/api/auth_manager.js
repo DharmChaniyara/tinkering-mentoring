@@ -19,62 +19,19 @@ module.exports = async function handler(req, res) {
         const token = signToken({ userId: user.id, name: user.name, role: user.role, email: user.email });
         return res.status(200).json({ token, role: user.role });
 
-      case 'send_reg_otp':
-        const { email: sEmail } = req.body;
-        const lowSEmail = (sEmail || '').toLowerCase().trim();
-        
-        // 1. Domain Validation
-        const isGmail = lowSEmail.endsWith('@gmail.com');
-        const isGsfc = lowSEmail.endsWith('@gsfcuniversity.ac.in');
-        if (!isGmail && !isGsfc) return res.status(400).json({ error: 'Only @gmail.com and @gsfcuniversity.ac.in emails are allowed.' });
-
-        // 2. Check if user already exists
-        const { data: existing, error: checkErr } = await supabase.from('users').select('id').eq('email', lowSEmail).maybeSingle();
-        if (existing) return res.status(400).json({ error: 'An account with this email already exists.' });
-
-        // 3. Generate and Save OTP
-        const sOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        const sExpires = new Date(Date.now() + 600000).toISOString();
-        
-        // Delete old codes first, then insert new one
-        await supabase.from('password_resets').delete().eq('email', lowSEmail);
-        const { error: insertErr } = await supabase.from('password_resets').insert({ email: lowSEmail, token: sOtp, expires_at: sExpires });
-        
-        if (insertErr) {
-          console.error('[OTP Insert Error]', insertErr);
-          return res.status(500).json({ error: 'Failed to generate verification code. Please try again.' });
-        }
-        
-        // 4. Send Email via Resend
-        if (process.env.RESEND_API_KEY) {
-          const { Resend } = require('resend');
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          await resend.emails.send({
-            from: process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>',
-            to: lowSEmail,
-            subject: 'Verify your StudyShare Account',
-            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
-              <h2 style="color:#6366f1;">StudyShare</h2>
-              <p>Thank you for joining StudyShare! To complete your registration, please use the verification code below:</p>
-              <div style="font-size:24px;font-weight:bold;letter-spacing:5px;color:#4f46e5;margin:20px 0;">${sOtp}</div>
-              <p>This code will expire in 10 minutes.</p>
-              <p>If you didn't request this, you can safely ignore this email.</p>
-            </div>`
-          });
-        }
-        return res.status(200).json({ message: 'Verification code sent to your email.' });
-
       case 'register':
-        const { name, email: remail, password: rpass, otp: rotp } = req.body;
+        const { name, email: remail, password: rpass } = req.body;
         const lowEmail = (remail || '').toLowerCase().trim();
         
-        // 1. Verify OTP
-        const { data: otpValid } = await supabase.from('password_resets').select('*').eq('email', lowEmail).eq('token', rotp).gt('expires_at', new Date().toISOString()).single();
-        if (!otpValid) return res.status(400).json({ error: 'Invalid or expired verification code.' });
+        // 1. Domain restriction (GSFC only, except for the Super Admin)
+        const isSuperAdmin = lowEmail === 'dharmchaniyara7368@gmail.com';
+        const isGsfcEmail = lowEmail.endsWith('@gsfcuniversity.ac.in');
+        
+        if (!isGsfcEmail && !isSuperAdmin) {
+          return res.status(400).json({ error: 'Registration is restricted to GSFC University emails (@gsfcuniversity.ac.in).' });
+        }
 
         const hashed = await bcrypt.hash(rpass, 10);
-        const isSuperAdmin = lowEmail === 'dharmchaniyara7368@gmail.com';
-        
         const { data: newUser, error: rErr } = await supabase.from('users').insert({ 
           name, 
           email: lowEmail, 
@@ -83,10 +40,6 @@ module.exports = async function handler(req, res) {
         }).select().single();
         
         if (rErr) return res.status(400).json({ error: rErr.message });
-        
-        // Clear OTP
-        await supabase.from('password_resets').delete().eq('email', lowEmail);
-        
         const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email });
         return res.status(200).json({ token: rToken, role: newUser.role });
 
