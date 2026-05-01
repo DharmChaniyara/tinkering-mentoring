@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "deploy": "npx vercel --prod",
-    "build": "mv frontend public || echo 'Already renamed'"
+    "build": "node -e \"const fs = require('fs'); if (fs.existsSync('frontend')) fs.renameSync('frontend', 'public');\""
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

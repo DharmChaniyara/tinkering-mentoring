@@ -91,6 +91,16 @@ module.exports = async function handler(req, res) {
         await supabase.from('password_resets').delete().eq('email', rEmail);
         return res.status(200).json({ message: 'Password has been reset successfully.' });
 
+      case 'debug':
+        return res.status(200).json({
+          env_check: {
+            SUPABASE_URL: !!process.env.SUPABASE_URL,
+            SUPABASE_SERVICE_KEY: !!process.env.SUPABASE_SERVICE_KEY,
+            JWT_SECRET: !!process.env.JWT_SECRET,
+            RESEND_API_KEY: !!process.env.RESEND_API_KEY
+          }
+        });
+
       default:
         return res.status(400).json({ error: 'Invalid action.' });
     }
