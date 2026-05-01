@@ -145,15 +145,6 @@
       if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
     }
   });
-  document.getElementById('demo-btn').addEventListener('click', async () => {
-    const res = await fetch('/api/auth_manager', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'demo' }),
-    });
-    const data = await res.json();
-    if (res.ok) handleAuthResponse(data);
-  });
   async function handleGoogleSignIn(response) {
     const res = await fetch('/api/auth_manager', {
       method: 'POST',
