@@ -64,6 +64,84 @@ document.addEventListener('DOMContentLoaded', async () => {
     unitRow.style.display = '';
   } else { unitRow.style.display = 'none'; }
 
+  document.getElementById('info-downloads').textContent = note.download_count || 0;
+  document.getElementById('doc-rating-avg').textContent = note.avg_rating || '0.0';
+
+  // Fetch uploader profile for rating
+  if (note.user_id) {
+    fetch(`/api/profile?id=${note.user_id}`, { headers: getAuthHeaders() })
+      .then(r => r.json())
+      .then(data => {
+        if (data.stats) {
+          document.getElementById('user-rating-avg').textContent = data.stats.avgRating || '0.0';
+        }
+      });
+  }
+
+  // Download tracking
+  const trackDownload = async () => {
+    fetch('/api/download_track', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ id: note.id })
+    });
+    // Optimistic UI
+    const countEl = document.getElementById('info-downloads');
+    countEl.textContent = parseInt(countEl.textContent) + 1;
+  };
+  document.getElementById('download-btn').addEventListener('click', trackDownload);
+  document.getElementById('download-btn-sidebar').addEventListener('click', trackDownload);
+
+  // Document Rating Logic
+  document.querySelectorAll('#doc-rating-stars [data-star]').forEach(star => {
+    star.addEventListener('click', async () => {
+      const rating = parseInt(star.dataset.star);
+      const res = await fetch('/api/rate_document', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ document_id: note.id, rating })
+      });
+      if (res.ok) {
+        alert('Rating submitted!');
+        location.reload();
+      } else {
+        const d = await res.json();
+        alert(d.error || 'Failed to submit rating.');
+      }
+    });
+    star.addEventListener('mouseover', () => highlightStars('doc-rating-stars', star.dataset.star));
+    star.addEventListener('mouseout', () => resetStars('doc-rating-stars', note.avg_rating));
+  });
+
+  // User Rating Logic
+  document.getElementById('rate-user-btn')?.addEventListener('click', async () => {
+    const rating = prompt('Rate this contributor (1-5):');
+    if (!rating) return;
+    const res = await fetch('/api/rate_user', {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ reviewee_id: note.user_id, rating: parseInt(rating) })
+    });
+    if (res.ok) {
+      alert('Review submitted!');
+      location.reload();
+    } else {
+      const d = await res.json();
+      alert(d.error || 'Failed to submit review.');
+    }
+  });
+
+  function highlightStars(containerId, count) {
+    document.querySelectorAll(`#${containerId} [data-star]`).forEach(s => {
+      s.textContent = parseInt(s.dataset.star) <= count ? '★' : '☆';
+    });
+  }
+  function resetStars(containerId, avg) {
+    highlightStars(containerId, Math.round(avg));
+  }
+  resetStars('doc-rating-stars', note.avg_rating);
+
+
   // Download / more-from-subject links
   document.getElementById('download-btn-sidebar').href        = note.file_path;
   document.getElementById('more-from-subject-btn').href       = `/subject?id=${note.subject_id}`;

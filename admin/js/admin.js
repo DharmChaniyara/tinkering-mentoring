@@ -7,10 +7,11 @@ document.addEventListener('DOMContentLoaded', () => {
     logout();
     return;
   }
-  document.getElementById('adminName').textContent = user.name || 'Admin';
+  const adminNameEl = document.getElementById('adminName');
+  if (adminNameEl) adminNameEl.textContent = user.name || 'Admin';
 
   // Navigation Logic
-  const navItems = document.querySelectorAll('.nav-item[data-target]');
+  const navItems = document.querySelectorAll('.admin-tab[data-target]');
   const sections = document.querySelectorAll('.view-section');
 
   navItems.forEach(item => {
@@ -24,9 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.add('active');
       const targetId = `view-${item.dataset.target}`;
       document.getElementById(targetId).classList.add('active');
-
-      // Update title
-      document.getElementById('pageTitle').textContent = item.textContent.trim();
 
       // Load data
       loadDataForSection(item.dataset.target);

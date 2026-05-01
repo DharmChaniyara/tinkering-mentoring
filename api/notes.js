@@ -11,7 +11,7 @@ module.exports = async function handler(req, res) {
   let query = supabase
     .from('notes')
     .select(`
-      id, title, file_path, file_type, category, uploaded_at, unit_number, user_id, subject_id,
+      id, title, file_path, file_type, category, uploaded_at, unit_number, user_id, subject_id, download_count,
       users ( name ),
       subjects ( name )
     `)
@@ -44,12 +44,24 @@ module.exports = async function handler(req, res) {
     uploader_name: n.users?.name || 'Unknown',
     subject_name: n.subjects?.name || '',
     unit_name: null,
+    download_count: n.download_count || 0,
   }));
 
   // If requesting a single note, return the object directly
   if (id) {
     if (!notes.length) return res.status(404).json({ error: 'Note not found.' });
-    return res.status(200).json(notes[0]);
+    
+    // Fetch average rating for this document
+    const { data: ratings } = await supabase
+      .from('document_ratings')
+      .select('rating')
+      .eq('document_id', parseInt(id));
+    
+    const avgRating = ratings && ratings.length > 0 
+      ? (ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length).toFixed(1)
+      : 0;
+
+    return res.status(200).json({ ...notes[0], avg_rating: avgRating, rating_count: ratings ? ratings.length : 0 });
   }
 
   return res.status(200).json(notes);

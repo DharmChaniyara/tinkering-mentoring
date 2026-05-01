@@ -37,7 +37,11 @@ function logout() {
 function handleAuthResponse(data, redirectTo = '/dashboard') {
   if (data.token) {
     localStorage.setItem(SS_TOKEN_KEY, data.token);
-    window.location.href = redirectTo;
+    if (data.role === 'admin') {
+      window.location.href = '/admin/dashboard.html';
+    } else {
+      window.location.href = redirectTo;
+    }
   }
 }
 
@@ -70,7 +74,11 @@ function renderSidebar(activePage = '') {
           <span class="nav-icon nav-icon-bounce">📚</span> Resources
         </a>
         <a href="#"><span class="nav-icon nav-icon-bounce">🔖</span> Bookmarks</a>
-        <a href="#"><span class="nav-icon nav-icon-bounce">👤</span> Profile</a>
+        <a href="/profile"><span class="nav-icon nav-icon-bounce">👤</span> Profile</a>
+        ${user.role === 'admin' ? `
+        <a href="/admin/dashboard.html" class="${activePage === 'admin' ? 'active' : ''}">
+          <span class="nav-icon nav-icon-bounce">⚙️</span> Admin Panel
+        </a>` : ''}
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">

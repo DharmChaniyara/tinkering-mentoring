@@ -25,3 +25,6 @@ uploads/
 vendor/
 *.sqlite
 *.db
+
+.vercel
+.env*.local
