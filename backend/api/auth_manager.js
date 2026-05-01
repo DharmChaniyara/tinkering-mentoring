@@ -23,19 +23,26 @@ module.exports = async function handler(req, res) {
         const { email: sEmail } = req.body;
         const lowSEmail = (sEmail || '').toLowerCase().trim();
         
-        // Validation
+        // 1. Domain Validation
         const isGmail = lowSEmail.endsWith('@gmail.com');
         const isGsfc = lowSEmail.endsWith('@gsfcuniversity.ac.in');
         if (!isGmail && !isGsfc) return res.status(400).json({ error: 'Only @gmail.com and @gsfcuniversity.ac.in emails are allowed.' });
 
-        // Check if user already exists
-        const { data: existing } = await supabase.from('users').select('id').eq('email', lowSEmail).single();
+        // 2. Check if user already exists
+        const { data: existing, error: checkErr } = await supabase.from('users').select('id').eq('email', lowSEmail).maybeSingle();
         if (existing) return res.status(400).json({ error: 'An account with this email already exists.' });
 
+        // 3. Generate and Save OTP
         const sOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        const sExpires = new Date(Date.now() + 600000);
-        await supabase.from('password_resets').upsert({ email: lowSEmail, token: sOtp, expires_at: sExpires }, { onConflict: 'email' });
+        const sExpires = new Date(Date.now() + 600000).toISOString();
+        const { error: upsertErr } = await supabase.from('password_resets').upsert({ email: lowSEmail, token: sOtp, expires_at: sExpires }, { onConflict: 'email' });
         
+        if (upsertErr) {
+          console.error('[OTP Upsert Error]', upsertErr);
+          return res.status(500).json({ error: 'Failed to generate verification code. Please try again.' });
+        }
+        
+        // 4. Send Email via Resend
         if (process.env.RESEND_API_KEY) {
           const { Resend } = require('resend');
           const resend = new Resend(process.env.RESEND_API_KEY);
@@ -44,10 +51,11 @@ module.exports = async function handler(req, res) {
             to: lowSEmail,
             subject: 'Verify your StudyShare Account',
             html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
-              <h2 style="color:#6366f1;">StudyShare Registration</h2>
-              <p>Your verification code is:</p>
+              <h2 style="color:#6366f1;">StudyShare</h2>
+              <p>Thank you for joining StudyShare! To complete your registration, please use the verification code below:</p>
               <div style="font-size:24px;font-weight:bold;letter-spacing:5px;color:#4f46e5;margin:20px 0;">${sOtp}</div>
-              <p>Enter this code to complete your registration. Valid for 10 minutes.</p>
+              <p>This code will expire in 10 minutes.</p>
+              <p>If you didn't request this, you can safely ignore this email.</p>
             </div>`
           });
         }
@@ -108,7 +116,7 @@ module.exports = async function handler(req, res) {
 
       case 'forgot':
         const { email: fEmail } = req.body;
-        const { data: fUser } = await supabase.from('users').select('id, name').eq('email', fEmail).single();
+        const { data: fUser } = await supabase.from('users').select('id, name').eq('email', fEmail).maybeSingle();
         if (!fUser) return res.status(200).json({ message: 'If an account exists, a reset code has been sent.' });
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
