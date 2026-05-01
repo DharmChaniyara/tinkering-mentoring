@@ -4,14 +4,15 @@
 const jwt = require('jsonwebtoken');
 
 /**
- * Sign a JWT token with userId and name.
+ * Sign a JWT token with userId, name, and role.
  * @param {number} userId
  * @param {string} name
+ * @param {string} role
  * @returns {string} Signed JWT string
  */
-function signToken(userId, name) {
+function signToken(userId, name, role = 'user') {
   return jwt.sign(
-    { userId, name },
+    { userId, name, role },
     process.env.JWT_SECRET,
     { expiresIn: '7d' }
   );
@@ -21,7 +22,7 @@ function signToken(userId, name) {
  * Verify the Bearer token from the Authorization header.
  * Returns the decoded payload or null if invalid.
  * @param {import('http').IncomingMessage} req
- * @returns {{ userId: number, name: string } | null}
+ * @returns {{ userId: number, name: string, role: string } | null}
  */
 function verifyRequest(req) {
   try {

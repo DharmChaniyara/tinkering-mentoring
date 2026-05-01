@@ -65,13 +65,17 @@ module.exports = async function handler(req, res) {
 
     const { data: user, error } = await supabase
       .from('users')
-      .select('id, name, email, password_hash')
+      .select('id, name, email, password_hash, role, status')
       .eq('email', email.toLowerCase().trim())
       .not('password_hash', 'is', null)
       .maybeSingle();
 
     if (error || !user) {
       return res.status(401).json({ error: 'Invalid email or password.' });
+    }
+
+    if (user.status === 'blocked') {
+      return res.status(403).json({ error: 'Your account has been blocked. Contact support.' });
     }
 
     const valid = await bcrypt.compare(password, user.password_hash);
@@ -83,9 +87,10 @@ module.exports = async function handler(req, res) {
     sendLoginAlert(user.email, user.name);
 
     return res.status(200).json({
-      token: signToken(user.id, user.name),
+      token: signToken(user.id, user.name, user.role),
       name: user.name,
       userId: user.id,
+      role: user.role,
     });
   }
 
@@ -116,7 +121,7 @@ module.exports = async function handler(req, res) {
     // Find existing user by google_id OR email (handles account linking)
     let { data: user } = await supabase
       .from('users')
-      .select('id, name, email')
+      .select('id, name, email, role, status')
       .or(`google_id.eq.${google_id},email.eq.${gEmail}`)
       .maybeSingle();
 
@@ -130,8 +135,8 @@ module.exports = async function handler(req, res) {
       // Create new account for first-time Google sign-in
       const { data: newUser, error: insertErr } = await supabase
         .from('users')
-        .insert({ google_id, name, email: gEmail.toLowerCase(), profile_pic })
-        .select('id, name, email')
+        .insert({ google_id, name, email: gEmail.toLowerCase(), profile_pic, role: 'user', status: 'active' })
+        .select('id, name, email, role, status')
         .single();
       if (insertErr) {
         console.error('[Google Auth] Insert error:', insertErr.message);
@@ -140,10 +145,15 @@ module.exports = async function handler(req, res) {
       user = newUser;
     }
 
+    if (user.status === 'blocked') {
+      return res.status(403).json({ error: 'Your account has been blocked. Contact support.' });
+    }
+
     return res.status(200).json({
-      token: signToken(user.id, user.name),
+      token: signToken(user.id, user.name, user.role),
       name: user.name,
       userId: user.id,
+      role: user.role,
     });
   }
 
@@ -152,23 +162,28 @@ module.exports = async function handler(req, res) {
     const demoEmail = 'demo@gsfcuniversity.ac.in';
     let { data: user } = await supabase
       .from('users')
-      .select('id, name')
+      .select('id, name, role, status')
       .eq('email', demoEmail)
       .maybeSingle();
 
     if (!user) {
       const { data: newUser } = await supabase
         .from('users')
-        .insert({ google_id: 'demo_google_001', name: 'CSE Student (Demo)', email: demoEmail })
-        .select('id, name')
+        .insert({ google_id: 'demo_google_001', name: 'CSE Student (Demo)', email: demoEmail, role: 'user', status: 'active' })
+        .select('id, name, role, status')
         .single();
       user = newUser;
     }
 
+    if (user.status === 'blocked') {
+      return res.status(403).json({ error: 'Demo account has been blocked.' });
+    }
+
     return res.status(200).json({
-      token: signToken(user.id, user.name),
+      token: signToken(user.id, user.name, user.role),
       name: user.name,
       userId: user.id,
+      role: user.role,
     });
   }
 

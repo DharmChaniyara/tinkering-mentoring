@@ -86,7 +86,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Send welcome email (fully non-blocking — never crashes registration)
-  const appUrl = process.env.APP_URL || 'https://your-app.vercel.app';
+  const appUrl = process.env.APP_URL || 'https://study-share.vercel.app';
   sendWelcomeEmail(email, name, appUrl).catch((e) =>
     console.error('[Mailer] Welcome email failed (non-fatal):', e.message)
   );

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Study Share</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css">
+  <!-- Icons -->
+  <style>
+    /* basic icon placeholders */
+    i.icon { display: inline-block; width: 1em; height: 1em; font-style: normal; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="brand">
+        StudyShare <span style="font-weight: 300; font-size: 16px; color: var(--text-muted);">Admin</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#dashboard" class="nav-item active" data-target="dashboard">
+          <i class="icon">📊</i> Dashboard
+        </a>
+        <a href="#users" class="nav-item" data-target="users">
+          <i class="icon">👥</i> Users
+        </a>
+        <a href="#documents" class="nav-item" data-target="documents">
+          <i class="icon">📄</i> Documents
+        </a>
+        <a href="#subjects" class="nav-item" data-target="subjects">
+          <i class="icon">📚</i> Subjects
+        </a>
+        <a href="#reports" class="nav-item" data-target="reports">
+          <i class="icon">🚨</i> Reports
+        </a>
+        <a href="#requests" class="nav-item" data-target="requests">
+          <i class="icon">📩</i> Requests
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <a href="/" class="nav-item" style="justify-content: center; background: rgba(255,255,255,0.05); margin-bottom: 8px;">
+          Go to Main Site
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="topbar">
+        <h1 id="pageTitle">Dashboard Overview</h1>
+        <div class="admin-profile">
+          <span id="adminName" style="font-weight: 600;">Admin</span>
+          <button class="logout-btn" onclick="logoutAdmin()">Log Out</button>
+        </div>
+      </div>
+
+      <!-- Dashboard View -->
+      <section id="view-dashboard" class="view-section active">
+        <div class="stats-grid">
+          <div class="glass stat-card">
+            <span class="title">Total Users</span>
+            <span class="value" id="stat-users">0</span>
+            <span class="icon">👥</span>
+          </div>
+          <div class="glass stat-card">
+            <span class="title">Documents</span>
+            <span class="value" id="stat-docs">0</span>
+            <span class="icon">📄</span>
+          </div>
+          <div class="glass stat-card">
+            <span class="title">Subjects</span>
+            <span class="value" id="stat-subjects">0</span>
+            <span class="icon">📚</span>
+          </div>
+          <div class="glass stat-card">
+            <span class="title">Reports</span>
+            <span class="value" id="stat-reports">0</span>
+            <span class="icon">🚨</span>
+          </div>
+        </div>
+
+        <h2 style="margin-bottom: 16px;">Recent Documents</h2>
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Uploader</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="recentDocsTable">
+              <tr><td colspan="3">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Users View -->
+      <section id="view-users" class="view-section">
+        <div class="controls-bar">
+          <input type="text" class="search-input" id="searchUsers" placeholder="Search users by name or email...">
+        </div>
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="usersTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Documents View -->
+      <section id="view-documents" class="view-section">
+        <div class="controls-bar">
+          <input type="text" class="search-input" id="searchDocs" placeholder="Search documents...">
+          <select class="search-input" id="filterDocsStatus" style="width: 150px;">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Subject</th>
+                <th>Uploader</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="docsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Subjects View -->
+      <section id="view-subjects" class="view-section">
+        <div class="controls-bar">
+          <button class="btn btn-primary" onclick="promptAddSubject()">+ Add Subject</button>
+        </div>
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Type</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="subjectsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Reports View -->
+      <section id="view-reports" class="view-section">
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Reported By</th>
+                <th>Document</th>
+                <th>Reason</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="reportsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Requests View -->
+      <section id="view-requests" class="view-section">
+        <div class="glass table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Requested By</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="requestsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
