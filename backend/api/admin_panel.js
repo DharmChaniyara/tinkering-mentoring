@@ -6,8 +6,10 @@ module.exports = async function handler(req, res) {
   if (handleCors(req, res)) return;
 
   const user = verifyRequest(req);
-  if (!user || user.role !== 'admin') {
-    return res.status(403).json({ error: 'Forbidden. Admin access required.' });
+  const SUPER_ADMIN = 'dharmchaniyara7368@gmail.com';
+  
+  if (!user || user.role !== 'admin' || user.email !== SUPER_ADMIN) {
+    return res.status(403).json({ error: 'Forbidden. Super Admin access required.' });
   }
 
   const { action } = req.method === 'GET' ? req.query : req.body;

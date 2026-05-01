@@ -11,19 +11,40 @@ module.exports = async function handler(req, res) {
     switch (action) {
       case 'login':
         const { email, password } = req.body;
-        const { data: user, error } = await supabase.from('users').select('*').eq('email', email).single();
+        const lowLoginEmail = (email || '').toLowerCase().trim();
+        const { data: user, error } = await supabase.from('users').select('*').eq('email', lowLoginEmail).single();
         if (error || !user) return res.status(401).json({ error: 'Invalid email or password.' });
         if (user.status === 'blocked') return res.status(403).json({ error: 'Your account has been blocked. Please contact admin.' });
         if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid email or password.' });
-        const token = signToken({ userId: user.id, name: user.name, role: user.role });
+        const token = signToken({ userId: user.id, name: user.name, role: user.role, email: user.email });
         return res.status(200).json({ token, role: user.role });
 
       case 'register':
         const { name, email: remail, password: rpass } = req.body;
+        const lowEmail = (remail || '').toLowerCase().trim();
+        
+        // 1. Basic format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(lowEmail)) return res.status(400).json({ error: 'Please enter a valid email address.' });
+        
+        // 2. Domain restriction (GSFC only, except for the Super Admin)
+        const isSuperAdmin = lowEmail === 'dharmchaniyara7368@gmail.com';
+        const isGsfcEmail = lowEmail.endsWith('@gsfcuniversity.ac.in');
+        
+        if (!isGsfcEmail && !isSuperAdmin) {
+          return res.status(400).json({ error: 'Registration is restricted to GSFC University emails (@gsfcuniversity.ac.in).' });
+        }
+
         const hashed = await bcrypt.hash(rpass, 10);
-        const { data: newUser, error: rErr } = await supabase.from('users').insert({ name, email: remail, password: hashed }).select().single();
+        const { data: newUser, error: rErr } = await supabase.from('users').insert({ 
+          name, 
+          email: lowEmail, 
+          password: hashed,
+          role: isSuperAdmin ? 'admin' : 'user'
+        }).select().single();
+        
         if (rErr) return res.status(400).json({ error: rErr.message });
-        const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role });
+        const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email });
         return res.status(200).json({ token: rToken, role: newUser.role });
 
       case 'profile':
@@ -47,7 +68,7 @@ module.exports = async function handler(req, res) {
       case 'demo':
         const { data: demoUser } = await supabase.from('users').select('*').eq('email', 'demo@example.com').single();
         if (!demoUser) return res.status(404).json({ error: 'Demo account not found.' });
-        const dToken = signToken({ userId: demoUser.id, name: demoUser.name, role: demoUser.role });
+        const dToken = signToken({ userId: demoUser.id, name: demoUser.name, role: demoUser.role, email: demoUser.email });
         return res.status(200).json({ token: dToken, role: demoUser.role });
 
       case 'google':

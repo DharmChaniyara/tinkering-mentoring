@@ -32,10 +32,6 @@
         </p>
         <div id="g_id_onload" data-client_id="224440956520-a290fnc947m1b2njr5cqfnc123346vap.apps.googleusercontent.com" data-callback="handleGoogleSignIn" data-auto_select="false" data-cancel_on_tap_outside="true"></div>
         <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline" data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left" style="display:flex;justify-content:center;margin:1rem 0;"></div>
-        <div class="or-divider">LOCAL DEMO ACCESS</div>
-        <button id="demo-btn" class="cyber-btn" style="width:100%;border-color:var(--input-border);color:var(--text-muted);background:transparent;box-shadow:none;">
-          ⚡ Quick Demo Sign-In [Testing Only]
-        </button>
       </div>
       <div class="auth-panel" id="panel-login">
         <form id="login-form" novalidate>
@@ -63,7 +59,7 @@
           </div>
           <div class="form-group">
             <label for="reg-email">University Email</label>
-            <input id="reg-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email">
+            <input id="reg-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@gsfcuniversity\.ac\.in$|^dharmchaniyara7368@gmail\.com$" title="Please use your GSFC University email (@gsfcuniversity.ac.in).">
           </div>
           <div class="form-group">
             <label for="reg-pass">Password <span style="color:var(--text-muted)">(min 8 chars)</span></label>

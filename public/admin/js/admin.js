@@ -1,6 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
   const user = requireAuth();
-  if (!user || user.role !== 'admin') { alert('Access Denied. Admin only.'); logout(); return; }
+  const SUPER_ADMIN = 'dharmchaniyara7368@gmail.com';
+  if (!user || user.role !== 'admin' || user.email !== SUPER_ADMIN) { 
+    alert('Access Denied. Only the Super Admin can access this panel.'); 
+    window.location.href = '/dashboard'; 
+    return; 
+  }
   const adminNameEl = document.getElementById('adminName');
   if (adminNameEl) adminNameEl.textContent = user.name || 'Admin';
   const navItems = document.querySelectorAll('.admin-tab[data-target]'), sections = document.querySelectorAll('.view-section');
