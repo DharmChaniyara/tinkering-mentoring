@@ -59,17 +59,17 @@
           </div>
           <div class="form-group">
             <label for="reg-email">University Email</label>
-            <input id="reg-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@gsfcuniversity\.ac\.in$|^dharmchaniyara7368@gmail\.com$" title="Please use your GSFC University email (@gsfcuniversity.ac.in).">
+            <input id="reg-email" class="form-input" type="email" name="email" placeholder="you@gsfcuniversity.ac.in" required autocomplete="email" pattern="^[a-zA-Z0-9._%+-]+@(gsfcuniversity\.ac\.in|gmail\.com)$" title="Please use your GSFC University or Gmail address.">
           </div>
           <div class="form-group">
             <label for="reg-pass">Password <span style="color:var(--text-muted)">(min 8 chars)</span></label>
             <input id="reg-pass" class="form-input" type="password" name="password" placeholder="••••••••" minlength="8" required autocomplete="new-password">
           </div>
-          <div class="form-group">
-            <label for="reg-confirm">Confirm Password</label>
-            <input id="reg-confirm" class="form-input" type="password" name="confirm_password" placeholder="••••••••" minlength="8" required autocomplete="new-password">
+          <div class="form-group" id="reg-otp-group" style="display:none;">
+            <label for="reg-otp">Verification Code (sent to email)</label>
+            <input id="reg-otp" class="form-input" type="text" name="otp" placeholder="123456" maxlength="6">
           </div>
-          <button type="submit" class="cyber-btn cyber-btn-success cyber-btn-full">Create Account</button>
+          <button type="submit" id="reg-submit-btn" class="cyber-btn cyber-btn-success cyber-btn-full">Create Account</button>
         </form>
         <div class="or-divider">already registered?</div>
         <button onclick="switchTab('login')" class="cyber-btn" style="width:100%;text-align:center;">Log In Instead</button>
@@ -107,19 +107,43 @@
     btn.disabled = false; btn.textContent = 'Secure Sign-In';
     if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
   });
+  let registrationStep = 1;
   document.getElementById('register-form').addEventListener('submit', async (e) => {
     e.preventDefault();
-    const btn = e.target.querySelector('button[type="submit"]');
-    btn.disabled = true; btn.textContent = 'Creating account...';
-    const body = Object.fromEntries(new FormData(e.target));
-    const res = await fetch('/api/auth_manager', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...body, action: 'register' }),
-    });
-    const data = await res.json();
-    btn.disabled = false; btn.textContent = 'Create Account';
-    if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
+    const btn = document.getElementById('reg-submit-btn');
+    const otpGroup = document.getElementById('reg-otp-group');
+    const email = e.target.email.value;
+
+    if (registrationStep === 1) {
+      btn.disabled = true; btn.textContent = 'Sending code...';
+      const res = await fetch('/api/auth_manager', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'send_reg_otp', email }),
+      });
+      const data = await res.json();
+      btn.disabled = false;
+      if (res.ok) {
+        registrationStep = 2;
+        otpGroup.style.display = 'block';
+        document.getElementById('reg-otp').required = true;
+        btn.textContent = 'Verify & Create Account';
+        showAlert(data.message, 'success');
+      } else {
+        showAlert(data.error);
+      }
+    } else {
+      btn.disabled = true; btn.textContent = 'Creating account...';
+      const body = Object.fromEntries(new FormData(e.target));
+      const res = await fetch('/api/auth_manager', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...body, action: 'register' }),
+      });
+      const data = await res.json();
+      btn.disabled = false; btn.textContent = 'Verify & Create Account';
+      if (res.ok) { handleAuthResponse(data); } else { showAlert(data.error); }
+    }
   });
   document.getElementById('demo-btn').addEventListener('click', async () => {
     const res = await fetch('/api/auth_manager', {
