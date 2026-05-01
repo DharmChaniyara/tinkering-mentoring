@@ -35,10 +35,13 @@ module.exports = async function handler(req, res) {
         // 3. Generate and Save OTP
         const sOtp = Math.floor(100000 + Math.random() * 900000).toString();
         const sExpires = new Date(Date.now() + 600000).toISOString();
-        const { error: upsertErr } = await supabase.from('password_resets').upsert({ email: lowSEmail, token: sOtp, expires_at: sExpires }, { onConflict: 'email' });
         
-        if (upsertErr) {
-          console.error('[OTP Upsert Error]', upsertErr);
+        // Delete old codes first, then insert new one
+        await supabase.from('password_resets').delete().eq('email', lowSEmail);
+        const { error: insertErr } = await supabase.from('password_resets').insert({ email: lowSEmail, token: sOtp, expires_at: sExpires });
+        
+        if (insertErr) {
+          console.error('[OTP Insert Error]', insertErr);
           return res.status(500).json({ error: 'Failed to generate verification code. Please try again.' });
         }
         
@@ -120,8 +123,10 @@ module.exports = async function handler(req, res) {
         if (!fUser) return res.status(200).json({ message: 'If an account exists, a reset code has been sent.' });
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expires = new Date(Date.now() + 600000); // 10 minutes
-        await supabase.from('password_resets').upsert({ email: fEmail, token: otp, expires_at: expires }, { onConflict: 'email' });
+        const expires = new Date(Date.now() + 600000).toISOString(); // 10 minutes
+        
+        await supabase.from('password_resets').delete().eq('email', fEmail);
+        await supabase.from('password_resets').insert({ email: fEmail, token: otp, expires_at: expires });
         
         // Send Email via Resend
         if (process.env.RESEND_API_KEY) {
