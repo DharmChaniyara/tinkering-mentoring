@@ -54,10 +54,42 @@ module.exports = async function handler(req, res) {
         return res.status(501).json({ error: 'Google sign-in integration pending library check.' });
 
       case 'forgot':
-        return res.status(200).json({ message: 'Password reset link sent (mock).' });
+        const { email: fEmail } = req.body;
+        const { data: fUser } = await supabase.from('users').select('id, name').eq('email', fEmail).single();
+        if (!fUser) return res.status(200).json({ message: 'If an account exists, a reset code has been sent.' });
+        // Generate 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 600000); // 10 minutes
+        await supabase.from('password_resets').insert({ email: fEmail, token: otp, expires_at: expires });
+        
+        // Send Email via Resend
+        if (process.env.RESEND_API_KEY) {
+          const { Resend } = require('resend');
+          const resend = new Resend(process.env.RESEND_API_KEY);
+          await resend.emails.send({
+            from: process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>',
+            to: fEmail,
+            subject: 'Your StudyShare Reset Code',
+            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
+              <h2 style="color:#6366f1;">StudyShare</h2>
+              <p>Hi ${fUser.name},</p>
+              <p>Your password reset code is:</p>
+              <div style="font-size:24px;font-weight:bold;letter-spacing:5px;color:#4f46e5;margin:20px 0;">${otp}</div>
+              <p>This code will expire in 10 minutes.</p>
+              <p>If you didn't request this, please ignore this email.</p>
+            </div>`
+          });
+        }
+        return res.status(200).json({ message: 'Password reset code sent.' });
       
       case 'reset':
-        return res.status(200).json({ message: 'Password has been reset (mock).' });
+        const { email: rEmail, otp: rOtp, password: newPass } = req.body;
+        const { data: resetEntry } = await supabase.from('password_resets').select('*').eq('email', rEmail).eq('token', rOtp).gt('expires_at', new Date().toISOString()).single();
+        if (!resetEntry) return res.status(400).json({ error: 'Invalid or expired code.' });
+        const newHashed = await bcrypt.hash(newPass, 10);
+        await supabase.from('users').update({ password: newHashed }).eq('email', rEmail);
+        await supabase.from('password_resets').delete().eq('email', rEmail);
+        return res.status(200).json({ message: 'Password has been reset successfully.' });
 
       default:
         return res.status(400).json({ error: 'Invalid action.' });
