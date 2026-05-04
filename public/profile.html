@@ -28,7 +28,7 @@
         <div style="position: absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); opacity: 0.3;"></div>
         
         <div class="profile-avatar-wrap" style="position: relative;">
-          <div id="profile-avatar" class="profile-avatar" style="width:160px; height:160px; border-radius:50%; border: 4px solid var(--primary); padding: 4px; background: rgba(0,0,0,0.2); box-shadow: 0 0 40px var(--primary-glow); cursor: pointer; overflow: hidden; position: relative; z-index: 2;" onclick="document.getElementById('profilePicInput').click()">
+          <div id="profile-avatar" class="profile-avatar" style="width:160px; height:160px; border-radius:50%; border: 4px solid var(--primary); background: rgba(0,0,0,0.2); box-shadow: 0 0 40px var(--primary-glow); cursor: pointer; overflow: hidden; position: relative; z-index: 2; display: flex; align-items: center; justify-content: center;" onclick="document.getElementById('profilePicInput').click()">
             <span id="avatar-text" style="font-size: 4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; height: 100%;">??</span>
           </div>
           <div style="position: absolute; inset: -10px; background: var(--primary-glow); border-radius: 50%; filter: blur(20px); opacity: 0.3; z-index: 1;"></div>
@@ -170,7 +170,7 @@
       
       const avatarContainer = document.getElementById('profile-avatar');
       if (data.user.profile_pic) {
-        avatarContainer.innerHTML = `<img src="${data.user.profile_pic}" style="width:100%;height:100%;object-fit:cover;">`;
+        avatarContainer.innerHTML = `<img src="${data.user.profile_pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
       } else {
         avatarContainer.innerHTML = `<span id="avatar-text">${(data.user.name || 'U').slice(0, 2).toUpperCase()}</span>`;
       }
@@ -305,7 +305,7 @@
       const data = await res.json();
       if (res.ok) {
         showToast('Profile picture updated!', 'success');
-        document.getElementById('profile-avatar').innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;">`;
+        document.getElementById('profile-avatar').innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
         if (data.token) {
           handleAuthResponse({ token: data.token, role: getUser().role }, false);
           renderSidebar('profile');
