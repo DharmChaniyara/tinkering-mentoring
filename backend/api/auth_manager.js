@@ -122,11 +122,11 @@ module.exports = async function handler(req, res) {
             await transporter.sendMail({
               from: `"StudyShare" <${process.env.GMAIL_USER}>`,
               to: fEmail,
-              subject: 'Your StudyShare Reset Code',
+              subject: 'Your OTP Code',
               html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
                 <h2 style="color:#6366f1;text-align:center;">StudyShare</h2>
                 <p>Hi ${fUser.name},</p>
-                <p>You requested a password reset for your StudyShare account. Use the code below to proceed:</p>
+                <p>You requested a password reset for your StudyShare account. Your OTP code is:</p>
                 <div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#4f46e5;margin:30px 0;text-align:center;background:#f8faff;padding:20px;border-radius:10px;">${otp}</div>
                 <p style="color:#666;font-size:14px;">This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
                 <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
@@ -135,8 +135,7 @@ module.exports = async function handler(req, res) {
             });
           } catch (mailErr) {
             console.error('[Nodemailer Error]', mailErr);
-            // We return a 500 but with the specific mail error if we are in a debug state
-            return res.status(500).json({ error: `Email failed to send: ${mailErr.message}` });
+            return res.status(500).json({ error: `Email failed to send. Please check server logs.` });
           }
         } else if (process.env.RESEND_API_KEY) {
           // Fallback to Resend if Gmail is not configured
