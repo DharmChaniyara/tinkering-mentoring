@@ -98,7 +98,7 @@ module.exports = async function handler(req, res) {
       case 'forgot':
         const { email: fEmail } = req.body;
         const { data: fUser } = await supabase.from('users').select('id, name').eq('email', fEmail).maybeSingle();
-        if (!fUser) return res.status(200).json({ message: 'If an account exists, a reset code has been sent.' });
+        if (!fUser) return res.status(404).json({ error: 'No account found with this email address.' });
         // Generate 6-digit OTP
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         const expires = new Date(Date.now() + 600000).toISOString(); // 10 minutes
