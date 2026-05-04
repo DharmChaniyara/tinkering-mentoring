@@ -19,9 +19,10 @@
     </header>
     <div class="page-content">
       <div class="profile-header slide-in-up" style="display:flex; align-items:center; gap:2rem; margin-bottom:3rem; padding:2rem; background:var(--glass-bg); border-radius:24px; border:1px solid var(--glass-border);">
-        <div class="profile-avatar" id="profile-avatar" style="width:120px; height:120px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800; color:white; box-shadow: 0 0 20px var(--accent-glow);">
-          ??
+        <div class="profile-avatar" id="profile-avatar" style="width:120px; height:120px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800; color:white; box-shadow: 0 0 20px var(--accent-glow); position:relative; cursor:pointer; overflow:hidden;" onclick="document.getElementById('profilePicInput').click()">
+          <span id="avatar-text">??</span>
         </div>
+        <input type="file" id="profilePicInput" style="display:none;" accept="image/png, image/jpeg, image/jpg" onchange="uploadProfilePic(event)">
         <div class="profile-info">
           <h1 id="profile-name" style="font-size:2.2rem; margin-bottom:8px;">Loading...</h1>
           <p id="profile-email" style="color:var(--text-secondary); margin-bottom:12px;">...</p>
@@ -112,7 +113,13 @@
       if (!res.ok) throw new Error(data.error);
       document.getElementById('profile-name').textContent = data.user.name;
       document.getElementById('profile-email').textContent = data.user.email;
-      document.getElementById('profile-avatar').textContent = (data.user.name || 'U').slice(0, 2).toUpperCase();
+      
+      const avatarContainer = document.getElementById('profile-avatar');
+      if (data.user.profile_pic) {
+        avatarContainer.innerHTML = `<img src="${data.user.profile_pic}" style="width:100%;height:100%;object-fit:cover;">`;
+      } else {
+        avatarContainer.innerHTML = `<span id="avatar-text">${(data.user.name || 'U').slice(0, 2).toUpperCase()}</span>`;
+      }
       if (data.user.role === 'admin') document.getElementById('profile-role').style.display = 'inline-block';
       const stars = '⭐'.repeat(Math.round(data.stats.avgRating)) + '☆'.repeat(5 - Math.round(data.stats.avgRating));
       document.getElementById('user-rating-stars').textContent = `${stars} (${data.stats.avgRating})`;
@@ -157,6 +164,39 @@
 
   function closeEditModal() {
     document.getElementById('editDocModal').classList.remove('open');
+  }
+
+  async function uploadProfilePic(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) return showToast('File size exceeds 5MB', 'error');
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const fileBase64 = reader.result.split(',')[1];
+      try {
+        showToast('Uploading profile picture...', 'info');
+        const res = await fetch('/api/auth_manager', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ action: 'update_profile_pic', fileBase64, mimeType: file.type })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('Profile picture updated!', 'success');
+          document.getElementById('profile-avatar').innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;">`;
+        } else {
+          if (data.error.includes('schema needs update')) {
+            showToast('Database schema needs an update (profile_pic column missing in users table).', 'error');
+          } else {
+            showToast(data.error || 'Upload failed', 'error');
+          }
+        }
+      } catch (e) {
+        showToast('Connection error', 'error');
+      }
+    };
+    reader.readAsDataURL(file);
   }
 
   document.getElementById('editDocForm').addEventListener('submit', async (e) => {

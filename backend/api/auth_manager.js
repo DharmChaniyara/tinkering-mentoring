@@ -48,7 +48,7 @@ module.exports = async function handler(req, res) {
         if (!requester) return res.status(401).json({ error: 'Unauthorized.' });
         const { id } = req.query;
         const targetUserId = id ? parseInt(id) : requester.userId;
-        const { data: pUser } = await supabase.from('users').select('id, name, email, role').eq('id', targetUserId).single();
+        const { data: pUser } = await supabase.from('users').select('id, name, email, role, profile_pic').eq('id', targetUserId).single();
         if (!pUser) return res.status(404).json({ error: 'User not found.' });
         const { count: uCount } = await supabase.from('notes').select('*', { count: 'exact', head: true }).eq('user_id', targetUserId);
         const { data: dData } = await supabase.from('notes').select('download_count').eq('user_id', targetUserId);
@@ -60,6 +60,32 @@ module.exports = async function handler(req, res) {
           user: pUser, stats: { uploadCount: uCount || 0, totalDownloads: tDown, avgRating: avgR },
           documents: (uDocs || []).map(d => ({ ...d, subject_name: d.subjects?.name || 'Unknown' }))
         });
+
+      case 'update_profile_pic':
+        const curUser = verifyRequest(req);
+        if (!curUser) return res.status(401).json({ error: 'Unauthorized.' });
+        const { fileBase64, mimeType } = req.body;
+        if (!fileBase64) return res.status(400).json({ error: 'No file provided.' });
+        
+        let fileBuffer;
+        try { fileBuffer = Buffer.from(fileBase64, 'base64'); } catch (e) { return res.status(400).json({ error: 'Invalid file data.' }); }
+        if (fileBuffer.length > 5 * 1024 * 1024) return res.status(400).json({ error: 'File exceeds 5MB.' });
+
+        const storageFileName = `profile_${curUser.userId}_${Date.now()}.png`;
+        const { error: storageError } = await supabase.storage.from('uploads').upload(storageFileName, fileBuffer, { contentType: mimeType || 'image/png', upsert: true });
+        if (storageError) return res.status(500).json({ error: 'Upload to storage failed.', detail: storageError.message });
+        
+        const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(storageFileName);
+        
+        const { error: dbError } = await supabase.from('users').update({ profile_pic: publicUrl }).eq('id', curUser.userId);
+        if (dbError) {
+          // Fallback if column doesn't exist
+          if (dbError.message.includes('column "profile_pic" of relation "users" does not exist')) {
+            return res.status(500).json({ error: 'Database schema needs update: add profile_pic column to users table.' });
+          }
+          return res.status(500).json({ error: 'Database update failed.', detail: dbError.message });
+        }
+        return res.status(200).json({ success: true, url: publicUrl });
 
       case 'demo':
         const { data: demoUser } = await supabase.from('users').select('*').eq('email', 'demo@example.com').single();

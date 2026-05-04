@@ -30,7 +30,7 @@ function renderSidebar(activePage = '') {
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
       <a href="/dashboard" class="sidebar-logo">
-        <div class="logo-icon">SS</div>
+        <img src="/img/logo.png" alt="StudyShare Logo" style="height: 40px; width: auto; object-fit: contain; margin-right: 10px;" onerror="this.outerHTML='<div class=\\'logo-icon\\'>SS</div>'">
         <div class="logo-text-wrap">
           <div class="logo-text">Study<span>Share</span></div>
           <div class="logo-tagline">Your Campus Brain</div>
