@@ -107,7 +107,33 @@ module.exports = async function handler(req, res) {
         await supabase.from('password_resets').insert({ email: fEmail, token: otp, expires_at: expires });
         
         // Send Email via Resend
-        if (process.env.RESEND_API_KEY) {
+        // Send Email via Nodemailer (Gmail SMTP)
+        if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+          const nodemailer = require('nodemailer');
+          const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+              user: process.env.GMAIL_USER,
+              pass: process.env.GMAIL_APP_PASSWORD
+            }
+          });
+
+          await transporter.sendMail({
+            from: `"StudyShare" <${process.env.GMAIL_USER}>`,
+            to: fEmail,
+            subject: 'Your StudyShare Reset Code',
+            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
+              <h2 style="color:#6366f1;text-align:center;">StudyShare</h2>
+              <p>Hi ${fUser.name},</p>
+              <p>You requested a password reset for your StudyShare account. Use the code below to proceed:</p>
+              <div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#4f46e5;margin:30px 0;text-align:center;background:#f8faff;padding:20px;border-radius:10px;">${otp}</div>
+              <p style="color:#666;font-size:14px;">This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
+              <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+              <p style="font-size:12px;color:#999;text-align:center;">StudyShare - Your Campus Brain</p>
+            </div>`
+          });
+        } else if (process.env.RESEND_API_KEY) {
+          // Fallback to Resend if Gmail is not configured
           const { Resend } = require('resend');
           const resend = new Resend(process.env.RESEND_API_KEY);
           await resend.emails.send({
@@ -117,10 +143,8 @@ module.exports = async function handler(req, res) {
             html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
               <h2 style="color:#6366f1;">StudyShare</h2>
               <p>Hi ${fUser.name},</p>
-              <p>Your password reset code is:</p>
-              <div style="font-size:24px;font-weight:bold;letter-spacing:5px;color:#4f46e5;margin:20px 0;">${otp}</div>
+              <p>Your password reset code is: <strong>${otp}</strong></p>
               <p>This code will expire in 10 minutes.</p>
-              <p>If you didn't request this, please ignore this email.</p>
             </div>`
           });
         }
