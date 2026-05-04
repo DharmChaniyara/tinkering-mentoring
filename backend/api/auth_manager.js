@@ -109,44 +109,57 @@ module.exports = async function handler(req, res) {
         // Send Email via Resend
         // Send Email via Nodemailer (Gmail SMTP)
         if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
-          const nodemailer = require('nodemailer');
-          const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-              user: process.env.GMAIL_USER,
-              pass: process.env.GMAIL_APP_PASSWORD
-            }
-          });
+          try {
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+              service: 'gmail',
+              auth: {
+                user: process.env.GMAIL_USER,
+                pass: process.env.GMAIL_APP_PASSWORD
+              }
+            });
 
-          await transporter.sendMail({
-            from: `"StudyShare" <${process.env.GMAIL_USER}>`,
-            to: fEmail,
-            subject: 'Your StudyShare Reset Code',
-            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
-              <h2 style="color:#6366f1;text-align:center;">StudyShare</h2>
-              <p>Hi ${fUser.name},</p>
-              <p>You requested a password reset for your StudyShare account. Use the code below to proceed:</p>
-              <div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#4f46e5;margin:30px 0;text-align:center;background:#f8faff;padding:20px;border-radius:10px;">${otp}</div>
-              <p style="color:#666;font-size:14px;">This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
-              <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
-              <p style="font-size:12px;color:#999;text-align:center;">StudyShare - Your Campus Brain</p>
-            </div>`
-          });
+            await transporter.sendMail({
+              from: `"StudyShare" <${process.env.GMAIL_USER}>`,
+              to: fEmail,
+              subject: 'Your StudyShare Reset Code',
+              html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;max-width:500px;margin:auto;">
+                <h2 style="color:#6366f1;text-align:center;">StudyShare</h2>
+                <p>Hi ${fUser.name},</p>
+                <p>You requested a password reset for your StudyShare account. Use the code below to proceed:</p>
+                <div style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#4f46e5;margin:30px 0;text-align:center;background:#f8faff;padding:20px;border-radius:10px;">${otp}</div>
+                <p style="color:#666;font-size:14px;">This code will expire in 10 minutes. If you didn't request this, please ignore this email.</p>
+                <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+                <p style="font-size:12px;color:#999;text-align:center;">StudyShare - Your Campus Brain</p>
+              </div>`
+            });
+          } catch (mailErr) {
+            console.error('[Nodemailer Error]', mailErr);
+            // We return a 500 but with the specific mail error if we are in a debug state
+            return res.status(500).json({ error: `Email failed to send: ${mailErr.message}` });
+          }
         } else if (process.env.RESEND_API_KEY) {
           // Fallback to Resend if Gmail is not configured
-          const { Resend } = require('resend');
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          await resend.emails.send({
-            from: process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>',
-            to: fEmail,
-            subject: 'Your StudyShare Reset Code',
-            html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
-              <h2 style="color:#6366f1;">StudyShare</h2>
-              <p>Hi ${fUser.name},</p>
-              <p>Your password reset code is: <strong>${otp}</strong></p>
-              <p>This code will expire in 10 minutes.</p>
-            </div>`
-          });
+          try {
+            const { Resend } = require('resend');
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            await resend.emails.send({
+              from: process.env.RESEND_FROM || 'StudyShare <onboarding@resend.dev>',
+              to: fEmail,
+              subject: 'Your StudyShare Reset Code',
+              html: `<div style="font-family:sans-serif;padding:20px;border:1px solid #eee;border-radius:10px;">
+                <h2 style="color:#6366f1;">StudyShare</h2>
+                <p>Hi ${fUser.name},</p>
+                <p>Your password reset code is: <strong>${otp}</strong></p>
+                <p>This code will expire in 10 minutes.</p>
+              </div>`
+            });
+          } catch (resendErr) {
+            console.error('[Resend Error]', resendErr);
+          }
+        } else {
+           console.warn('[Email Warning] No email service configured (Missing GMAIL_USER or RESEND_API_KEY)');
+           return res.status(500).json({ error: 'Email service not configured on server.' });
         }
         return res.status(200).json({ message: 'Password reset code sent.' });
       
@@ -165,7 +178,9 @@ module.exports = async function handler(req, res) {
             SUPABASE_URL: !!process.env.SUPABASE_URL,
             SUPABASE_SERVICE_KEY: !!process.env.SUPABASE_SERVICE_KEY,
             JWT_SECRET: !!process.env.JWT_SECRET,
-            RESEND_API_KEY: !!process.env.RESEND_API_KEY
+            RESEND_API_KEY: !!process.env.RESEND_API_KEY,
+            GMAIL_USER: !!process.env.GMAIL_USER,
+            GMAIL_APP_PASSWORD: !!process.env.GMAIL_APP_PASSWORD
           }
         });
 
