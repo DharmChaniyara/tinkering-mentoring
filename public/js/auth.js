@@ -18,7 +18,8 @@ function logout() {
 function handleAuthResponse(data, redirectTo = '/dashboard') {
   if (data.token) {
     localStorage.setItem(SS_TOKEN_KEY, data.token);
-    if (data.role === 'admin') { window.location.href = '/admin/dashboard.html'; } else { window.location.href = redirectTo; }
+    if (redirectTo === false) return;
+    if (data.role === 'admin' && redirectTo !== false) { window.location.href = '/admin/dashboard.html'; } else if (redirectTo) { window.location.href = redirectTo; }
   }
 }
 function renderSidebar(activePage = '') {
@@ -56,10 +57,13 @@ function renderSidebar(activePage = '') {
       </nav>
       <div class="sidebar-footer">
         <div class="sidebar-user">
-          <div class="sidebar-avatar">${initials}</div>
+          ${user.profile_pic 
+              ? `<img src="${user.profile_pic}" class="sidebar-avatar" style="object-fit:cover; padding:0; background:transparent;">` 
+              : `<div class="sidebar-avatar">${initials}</div>`
+          }
           <div class="sidebar-user-info">
             <div class="name">${escHtml(user.name || 'Student')}</div>
-            <div class="role">CSE Student</div>
+            <div class="role">${user.role === 'admin' ? 'Admin' : 'Student'}</div>
           </div>
         </div>
         <button onclick="logout()" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="margin-top:8px;font-size:0.8rem;">Log Out</button>

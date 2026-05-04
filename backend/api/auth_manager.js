@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
         if (error || !user) return res.status(401).json({ error: 'Invalid email or password.' });
         if (user.status === 'blocked') return res.status(403).json({ error: 'Your account has been blocked. Please contact admin.' });
         if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid email or password.' });
-        const token = signToken({ userId: user.id, name: user.name, role: user.role, email: user.email });
+        const token = signToken({ userId: user.id, name: user.name, role: user.role, email: user.email, profile_pic: user.profile_pic });
         return res.status(200).json({ token, role: user.role });
 
       case 'register':
@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
         }).select().single();
         
         if (rErr) return res.status(400).json({ error: rErr.message });
-        const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email });
+        const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email, profile_pic: newUser.profile_pic });
         return res.status(200).json({ token: rToken, role: newUser.role });
 
       case 'profile':
@@ -85,12 +85,14 @@ module.exports = async function handler(req, res) {
           }
           return res.status(500).json({ error: 'Database update failed.', detail: dbError.message });
         }
-        return res.status(200).json({ success: true, url: publicUrl });
+        // Generate a new token to update the frontend's stored user data
+        const updatedToken = signToken({ ...curUser, profile_pic: publicUrl });
+        return res.status(200).json({ success: true, url: publicUrl, token: updatedToken });
 
       case 'demo':
         const { data: demoUser } = await supabase.from('users').select('*').eq('email', 'demo@example.com').single();
         if (!demoUser) return res.status(404).json({ error: 'Demo account not found.' });
-        const dToken = signToken({ userId: demoUser.id, name: demoUser.name, role: demoUser.role, email: demoUser.email });
+        const dToken = signToken({ userId: demoUser.id, name: demoUser.name, role: demoUser.role, email: demoUser.email, profile_pic: demoUser.profile_pic });
         return res.status(200).json({ token: dToken, role: demoUser.role });
 
       case 'google':

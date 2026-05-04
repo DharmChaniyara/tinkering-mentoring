@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>StudyShare | My Profile</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
   <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
 </head>
 <body>
@@ -100,6 +101,24 @@
    </div>
  </div>
 
+ <!-- CROPPER MODAL -->
+ <div id="cropModal" class="modal-overlay">
+   <div class="modal-content pop-in" style="max-width: 600px;">
+     <div class="modal-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+       <h2 class="gradient-text">Crop Image</h2>
+       <button class="modal-close" onclick="closeCropModal()" style="background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:1.2rem;">✕</button>
+     </div>
+     <div style="max-height: 400px; overflow: hidden; display: flex; justify-content: center; background: #000; border-radius: 8px;">
+       <img id="imageToCrop" style="max-width: 100%; display: block;">
+     </div>
+     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem;">
+       <button type="button" class="cyber-btn cyber-btn-ghost" onclick="closeCropModal()">Cancel</button>
+       <button type="button" class="cyber-btn cyber-btn-success" onclick="executeCrop()">Crop & Save</button>
+     </div>
+   </div>
+ </div>
+
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
  <script src="/js/theme.js"></script>
 <script src="/js/auth.js"></script>
 <script>
@@ -166,37 +185,83 @@
     document.getElementById('editDocModal').classList.remove('open');
   }
 
-  async function uploadProfilePic(event) {
+  let cropper;
+
+  function closeCropModal() {
+    document.getElementById('cropModal').classList.remove('open');
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+    document.getElementById('profilePicInput').value = '';
+  }
+
+  function uploadProfilePic(event) {
     const file = event.target.files[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) return showToast('File size exceeds 5MB', 'error');
+    if (file.size > 5 * 1024 * 1024) {
+      showToast('File size exceeds 5MB', 'error');
+      event.target.value = '';
+      return;
+    }
 
     const reader = new FileReader();
-    reader.onload = async () => {
-      const fileBase64 = reader.result.split(',')[1];
-      try {
-        showToast('Uploading profile picture...', 'info');
-        const res = await fetch('/api/auth_manager', {
-          method: 'POST',
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ action: 'update_profile_pic', fileBase64, mimeType: file.type })
-        });
-        const data = await res.json();
-        if (res.ok) {
-          showToast('Profile picture updated!', 'success');
-          document.getElementById('profile-avatar').innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;">`;
-        } else {
-          if (data.error.includes('schema needs update')) {
-            showToast('Database schema needs an update (profile_pic column missing in users table).', 'error');
-          } else {
-            showToast(data.error || 'Upload failed', 'error');
-          }
-        }
-      } catch (e) {
-        showToast('Connection error', 'error');
-      }
+    reader.onload = (e) => {
+      const img = document.getElementById('imageToCrop');
+      img.src = e.target.result;
+      document.getElementById('cropModal').classList.add('open');
+      
+      if (cropper) cropper.destroy();
+      cropper = new Cropper(img, {
+        aspectRatio: 1,
+        viewMode: 1,
+        background: false,
+        zoomable: false,
+      });
     };
     reader.readAsDataURL(file);
+  }
+
+  async function executeCrop() {
+    if (!cropper) return;
+    showToast('Uploading profile picture...', 'info');
+    
+    // Get cropped canvas
+    const canvas = cropper.getCroppedCanvas({
+      width: 256,
+      height: 256,
+    });
+    
+    // Convert to base64
+    const base64Image = canvas.toDataURL('image/png');
+    const fileBase64 = base64Image.split(',')[1];
+    
+    closeCropModal();
+
+    try {
+      const res = await fetch('/api/auth_manager', {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ action: 'update_profile_pic', fileBase64, mimeType: 'image/png' })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        showToast('Profile picture updated!', 'success');
+        document.getElementById('profile-avatar').innerHTML = `<img src="${data.url}" style="width:100%;height:100%;object-fit:cover;">`;
+        if (data.token) {
+          handleAuthResponse({ token: data.token, role: getUser().role }, false);
+          renderSidebar('profile');
+        }
+      } else {
+        if (data.error && data.error.includes('schema needs update')) {
+          showToast('Database schema needs an update (profile_pic column missing).', 'error');
+        } else {
+          showToast(data.error || 'Upload failed', 'error');
+        }
+      }
+    } catch (e) {
+      showToast('Connection error', 'error');
+    }
   }
 
   document.getElementById('editDocForm').addEventListener('submit', async (e) => {
