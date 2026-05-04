@@ -30,11 +30,11 @@ function renderSidebar(activePage = '') {
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Menu">☰</button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
-      <a href="/dashboard" class="sidebar-logo">
-        <img src="/img/logo.png" alt="StudyShare Logo" style="height: 40px; width: auto; object-fit: contain; margin-right: 10px;" onerror="this.outerHTML='<div class=\\'logo-icon\\'>SS</div>'">
-        <div class="logo-text-wrap">
-          <div class="logo-text">Study<span>Share</span></div>
-          <div class="logo-tagline">Your Campus Brain</div>
+      <a href="/dashboard" class="sidebar-logo" style="margin-bottom: 2rem;">
+        <div class="logo-icon" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: #fff; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); flex-shrink: 0;">SS</div>
+        <div class="logo-text-wrap" style="margin-left: 12px;">
+          <div class="logo-text" style="font-size: 1.4rem; font-weight: 800; line-height: 1; color: #fff;">Study<span style="color:var(--primary); opacity: 0.7;">Share</span></div>
+          <div class="logo-tagline" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Your Campus Brain</div>
         </div>
       </a>
       <nav class="sidebar-nav">
@@ -49,9 +49,6 @@ function renderSidebar(activePage = '') {
           <span class="nav-icon nav-icon-bounce">📚</span> Resources
         </a>
         <a href="#"><span class="nav-icon nav-icon-bounce">🔖</span> Bookmarks</a>
-        
-        <div style="margin-top: auto;"></div>
-        
         <a href="/profile" class="${activePage === 'profile' ? 'active' : ''}">
           <span class="nav-icon nav-icon-bounce">👤</span> Profile
         </a>

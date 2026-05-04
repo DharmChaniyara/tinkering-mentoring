@@ -258,7 +258,23 @@
         aspectRatio: 1,
         viewMode: 1,
         background: false,
-        zoomable: false,
+        zoomable: true,
+        dragMode: 'move',
+        responsive: true,
+        autoCropArea: 1,
+        ready() {
+          // Make the crop box circular in the UI
+          const cropBox = document.querySelector('.cropper-face');
+          if (cropBox) {
+            cropBox.style.borderRadius = '50%';
+          }
+          const cropView = document.querySelector('.cropper-view-box');
+          if (cropView) {
+            cropView.style.borderRadius = '50%';
+            cropView.style.outline = 'none';
+            cropView.style.boxShadow = '0 0 0 4000px rgba(0, 0, 0, 0.5)';
+          }
+        }
       });
     };
     reader.readAsDataURL(file);
