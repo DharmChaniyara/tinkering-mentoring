@@ -71,8 +71,8 @@ function renderSidebar(activePage = '') {
       <div class="sidebar-footer" style="padding: 1.5rem; background: rgba(0,0,0,0.2);">
         <div class="sidebar-user" style="margin-bottom: 1rem;">
           ${user.profile_pic 
-              ? `<img src="${user.profile_pic}" class="sidebar-avatar" style="width:44px; height:44px; object-fit:cover; border-radius:12px; margin-right:12px;">` 
-              : `<div class="sidebar-avatar" style="width:44px; height:44px; border-radius:12px; margin-right:12px;">${initials}</div>`
+              ? `<img src="${user.profile_pic}" class="sidebar-avatar" style="width:44px; height:44px; object-fit:cover; border-radius:12px; margin-right:12px; border: 1px solid var(--glass-border);">` 
+              : `<div class="sidebar-avatar" style="width:44px; height:44px; border-radius:12px; margin-right:12px; background: linear-gradient(135deg, #6366f1, #a855f7); display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 800; font-size: 0.9rem; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0;">${initials}</div>`
           }
           <div class="sidebar-user-info">
             <div class="name" style="font-size:0.95rem; font-weight:700;">${escHtml(user.name || 'Student')}</div>
