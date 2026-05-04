@@ -30,18 +30,22 @@ function renderSidebar(activePage = '') {
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Menu">☰</button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
-      <a href="/dashboard" class="sidebar-logo" style="margin-bottom: 2.5rem; display: flex; align-items: center; gap: 12px; text-decoration: none;">
-        <div class="logo-wrapper" style="width: 48px; height: 48px; position: relative; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 14px; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <a href="/dashboard" class="sidebar-logo" style="margin-bottom: 2.5rem; display: flex; align-items: center; gap: 14px; text-decoration: none;">
+        <div class="logo-wrapper" style="width: 54px; height: 54px; position: relative; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.03); border-radius: 16px; border: 1px solid var(--glass-border);">
+          <svg width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Graduation Cap (Yellow) -->
+            <path d="M50 20L15 35L50 50L85 35L50 20Z" fill="#FFB700"/>
+            <path d="M25 40V55C25 55 35 62 50 62C65 62 75 55 75 55V40" stroke="#FFB700" stroke-width="6" stroke-linecap="round"/>
+            <path d="M80 37V55" stroke="#FFB700" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="80" cy="58" r="4" fill="#FFB700"/>
+            
+            <!-- Modern 'S' (Theme Responsive) -->
+            <path d="M65 45C65 40 60 35 50 35C40 35 35 40 35 45C35 50 40 55 50 57C65 60 70 65 70 75C70 85 62 90 50 90C38 90 30 85 30 75" stroke="currentColor" stroke-width="12" stroke-linecap="round" style="color: var(--text-main);"/>
           </svg>
-          <div style="position: absolute; top: -5px; right: -5px; background: #ff9800; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1a1a2e;"></div>
         </div>
         <div class="logo-text-wrap">
-          <div class="logo-text" style="font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1;">Study<span style="color:var(--primary);">Share</span></div>
-          <div class="logo-tagline" style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Your Campus Brain</div>
+          <div class="logo-text" style="font-size: 1.6rem; font-weight: 900; color: var(--text-main); line-height: 1; letter-spacing: -0.5px;">Study<span style="color:#FFB700;">Share</span></div>
+          <div class="logo-tagline" style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-top: 5px; font-weight: 600;">Your Campus Brain</div>
         </div>
       </a>
       <nav class="sidebar-nav">
