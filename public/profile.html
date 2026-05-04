@@ -13,62 +13,97 @@
   <div id="sidebar-container"></div>
   <div class="main-content">
     <header class="topbar">
+      <h2 style="font-size:1.1rem; font-weight:700;">My Contribution Profile</h2>
       <div style="flex:1"></div>
       <div class="topbar-actions">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" style="background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); display:flex; align-items:center; gap:8px; padding:6px 14px;">
+          <span style="color:#fbbf24;">☀️</span> Light
+        </button>
       </div>
     </header>
+
     <div class="page-content">
-      <div class="profile-header slide-in-up" style="display:flex; align-items:center; gap:2rem; margin-bottom:3rem; padding:2rem; background:var(--glass-bg); border-radius:24px; border:1px solid var(--glass-border);">
-        <div class="profile-avatar" id="profile-avatar" style="width:120px; height:120px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:800; color:white; box-shadow: 0 0 20px var(--accent-glow); position:relative; cursor:pointer; overflow:hidden;" onclick="document.getElementById('profilePicInput').click()">
-          <span id="avatar-text">??</span>
+      <!-- Profile Hero Card -->
+      <div class="profile-hero-card slide-in-up" style="background: radial-gradient(circle at top right, rgba(124, 58, 237, 0.15), transparent), var(--glass-bg); padding: 3rem 2rem; border-radius: 30px; border: 1px solid var(--glass-border); margin-bottom: 2.5rem; display: flex; align-items: center; gap: 3rem; position: relative; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);">
+        <div style="position: absolute; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, var(--primary), transparent); opacity: 0.3;"></div>
+        
+        <div class="profile-avatar-wrap" style="position: relative;">
+          <div id="profile-avatar" class="profile-avatar" style="width:160px; height:160px; border-radius:50%; border: 4px solid var(--primary); padding: 4px; background: rgba(0,0,0,0.2); box-shadow: 0 0 40px var(--primary-glow); cursor: pointer; overflow: hidden; position: relative; z-index: 2;" onclick="document.getElementById('profilePicInput').click()">
+            <span id="avatar-text" style="font-size: 4rem; font-weight: 800; color: var(--primary); display: flex; align-items: center; justify-content: center; height: 100%;">??</span>
+          </div>
+          <div style="position: absolute; inset: -10px; background: var(--primary-glow); border-radius: 50%; filter: blur(20px); opacity: 0.3; z-index: 1;"></div>
         </div>
+        
         <input type="file" id="profilePicInput" style="display:none;" accept="image/png, image/jpeg, image/jpg" onchange="uploadProfilePic(event)">
-        <div class="profile-info">
-          <h1 id="profile-name" style="font-size:2.2rem; margin-bottom:8px;">Loading...</h1>
-          <p id="profile-email" style="color:var(--text-secondary); margin-bottom:12px;">...</p>
-          <div style="display:flex; gap:12px;">
-            <span class="badge badge-admin" id="profile-role" style="display:none;">Admin</span>
-            <div id="user-rating-stars" style="color:#fbbf24; font-size:1.1rem;"></div>
+        
+        <div class="profile-main-info">
+          <h1 id="profile-name" style="font-size: 3rem; font-weight: 800; letter-spacing: -1px; margin-bottom: 4px;">Dharm Chaniyara</h1>
+          <p id="profile-email" style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 1.5rem;">dharmchaniyara7368@gmail.com</p>
+          
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span id="profile-role" style="font-size: 1rem; font-weight: 700; color: #fff;">Student</span>
+            <div id="user-rating-stars" style="display: flex; align-items: center; gap: 4px; color: #fbbf24; font-size: 1rem;">
+              ⭐⭐⭐⭐⭐ <span style="color: var(--text-muted); margin-left: 4px; font-weight: 500;">(2)</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="stats-row stagger-children" style="margin-bottom:3rem;">
-        <div class="stat-card">
-          <div class="stat-icon">📤</div>
-          <div class="stat-value" id="stat-uploads">0</div>
-          <div class="stat-label">Docs Uploaded</div>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid stagger-children" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 3rem;">
+        <div class="stat-card" style="background: rgba(124, 58, 237, 0.05); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
+          <div style="width: 44px; height: 44px; background: rgba(124, 58, 237, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">📤</div>
+          <div>
+            <div id="stat-uploads" style="font-size: 2.5rem; font-weight: 800; font-family: 'Outfit', sans-serif;">2</div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700;">Docs Uploaded</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">📥</div>
-          <div class="stat-value" id="stat-downloads">0</div>
-          <div class="stat-label">Total Downloads</div>
+        
+        <div class="stat-card" style="background: rgba(6, 182, 212, 0.05); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
+          <div style="width: 44px; height: 44px; background: rgba(6, 182, 212, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⬇️</div>
+          <div>
+            <div id="stat-downloads" style="font-size: 2.5rem; font-weight: 800; font-family: 'Outfit', sans-serif;">0</div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700;">Total Downloads</div>
+          </div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon">⭐</div>
-          <div class="stat-value" id="stat-rating">0.0</div>
-          <div class="stat-label">Student Rating</div>
+        
+        <div class="stat-card" style="background: rgba(251, 191, 36, 0.05); border: 1px solid var(--glass-border); padding: 2rem; border-radius: 20px; display: flex; flex-direction: column; align-items: flex-start; gap: 1rem;">
+          <div style="width: 44px; height: 44px; background: rgba(251, 191, 36, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">⭐</div>
+          <div>
+            <div id="stat-rating" style="font-size: 2.5rem; font-weight: 800; font-family: 'Outfit', sans-serif;">5</div>
+            <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700;">Student Rating</div>
+          </div>
         </div>
       </div>
-      <h2 style="margin-bottom:1.5rem;">My Uploaded Documents</h2>
-      <div class="glass-panel" style="padding:0; overflow:hidden;">
+
+      <!-- Managed Resources Section -->
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 4px;">
+          <div style="width: 4px; height: 24px; background: var(--primary); border-radius: 2px;"></div>
+          <div style="width: 4px; height: 24px; background: var(--secondary); border-radius: 2px; opacity: 0.5;"></div>
+        </div>
+        <h2 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px;">Managed Resources</h2>
+      </div>
+
+      <div class="glass-panel" style="padding:0; overflow:hidden; border-radius: 24px;">
         <div style="overflow-x: auto;">
           <table style="width:100%; border-collapse:collapse;">
-            <thead style="background:rgba(0,0,0,0.2);">
+            <thead style="background:rgba(0,0,0,0.3); border-bottom: 1px solid var(--glass-border);">
               <tr>
-                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Title</th>
-                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Subject</th>
-                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Downloads</th>
-                <th style="padding:1rem; text-align:left; color:var(--text-muted);">Uploaded</th>
-                <th style="padding:1rem; text-align:right; color:var(--text-muted);">Actions</th>
+                <th style="padding:1.5rem; text-align:left; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">Resource</th>
+                <th style="padding:1.5rem; text-align:left; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">Category</th>
+                <th style="padding:1.5rem; text-align:left; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">Downloads</th>
+                <th style="padding:1.5rem; text-align:left; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">Rating</th>
+                <th style="padding:1.5rem; text-align:right; color:var(--text-muted); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px;">Actions</th>
               </tr>
             </thead>
             <tbody id="uploads-table-body">
-              <tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">Fetching your uploads...</td></tr>
+              <tr><td colspan="5" style="padding:3rem; text-align:center; color:var(--text-muted);">Fetching your resources...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </div>
@@ -148,20 +183,27 @@
       const tbody = document.getElementById('uploads-table-body');
       tbody.innerHTML = '';
       if (data.documents.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="padding:2rem; text-align:center; color:var(--text-muted);">No documents uploaded yet.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:3rem; text-align:center; color:var(--text-muted);">No documents uploaded yet.</td></tr>';
       } else {
         data.documents.forEach(doc => {
-          const date = new Date(doc.uploaded_at).toLocaleDateString();
+          const stars = '⭐'.repeat(Math.round(doc.rating || 5)) + '☆'.repeat(5 - Math.round(doc.rating || 5));
           tbody.innerHTML += `
-            <tr id="doc-row-${doc.id}" style="border-bottom:1px solid var(--glass-border);">
-              <td style="padding:1rem;"><a href="/view_document?id=${doc.id}" id="doc-title-${doc.id}" style="color:var(--accent); text-decoration:none; font-weight:600;">${escHtml(doc.title)}</a></td>
-              <td style="padding:1rem;">${escHtml(doc.subject_name)}</td>
-              <td style="padding:1rem;">${doc.download_count}</td>
-              <td style="padding:1rem;">${date}</td>
-              <td style="padding:1rem; text-align:right;">
-                <div style="display:flex; gap:8px; justify-content:flex-end;">
-                  <button onclick='openEditModal(${JSON.stringify(doc).replace(/'/g, "&apos;")})' class="cyber-btn" style="padding:6px 12px; font-size:0.7rem; background:var(--accent); border-color:var(--accent);">Rename / Edit</button>
-                  <button onclick="confirmDelete(${doc.id})" class="cyber-btn cyber-btn-danger" style="padding:6px 12px; font-size:0.7rem;">Delete</button>
+            <tr id="doc-row-${doc.id}" style="border-bottom:1px solid var(--glass-border); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.02)'" onmouseout="this.style.background='transparent'">
+              <td style="padding:1.5rem;">
+                <a href="/view_document?id=${doc.id}" id="doc-title-${doc.id}" style="color:#fff; text-decoration:none; font-weight:600; display:block; margin-bottom:4px;">${escHtml(doc.title)}</a>
+                <span style="font-size:0.75rem; color:var(--text-muted);">${escHtml(doc.subject_name)}</span>
+              </td>
+              <td style="padding:1.5rem;">
+                <span class="file-badge">${escHtml(doc.category || 'Notes')}</span>
+              </td>
+              <td style="padding:1.5rem; font-weight:700; color:var(--text-muted);">${doc.download_count}</td>
+              <td style="padding:1.5rem;">
+                <div style="color:#fbbf24; font-size:0.85rem;">${stars}</div>
+              </td>
+              <td style="padding:1.5rem; text-align:right;">
+                <div style="display:flex; gap:12px; justify-content:flex-end;">
+                  <button onclick='openEditModal(${JSON.stringify(doc).replace(/'/g, "&apos;")})' class="cyber-btn cyber-btn-ghost" style="padding:8px 16px; font-size:0.75rem; border-radius:10px;">Edit</button>
+                  <button onclick="confirmDelete(${doc.id})" class="cyber-btn cyber-btn-danger" style="padding:8px 16px; font-size:0.75rem; border-radius:10px;">Delete</button>
                 </div>
               </td>
             </tr>

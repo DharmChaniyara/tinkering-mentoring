@@ -60,18 +60,25 @@ function renderSidebar(activePage = '') {
           <span class="nav-icon nav-icon-bounce">⚙️</span> Admin Panel
         </a>` : ''}
       </nav>
-      <div class="sidebar-footer">
-        <div class="sidebar-user">
+      <div class="sidebar-footer" style="padding: 1.5rem; background: rgba(0,0,0,0.2);">
+        <div class="sidebar-user" style="margin-bottom: 1rem;">
           ${user.profile_pic 
-              ? `<img src="${user.profile_pic}" class="sidebar-avatar" style="object-fit:cover; padding:0; background:transparent;">` 
-              : `<div class="sidebar-avatar">${initials}</div>`
+              ? `<img src="${user.profile_pic}" class="sidebar-avatar" style="width:44px; height:44px; object-fit:cover; border-radius:12px; margin-right:12px;">` 
+              : `<div class="sidebar-avatar" style="width:44px; height:44px; border-radius:12px; margin-right:12px;">${initials}</div>`
           }
           <div class="sidebar-user-info">
-            <div class="name">${escHtml(user.name || 'Student')}</div>
-            <div class="role">${user.role === 'admin' ? 'Admin' : 'Student'}</div>
+            <div class="name" style="font-size:0.95rem; font-weight:700;">${escHtml(user.name || 'Student')}</div>
+            <div class="role" style="font-size:0.75rem; color:var(--text-muted);">${user.role === 'admin' ? 'Admin' : 'CSE Student'}</div>
           </div>
         </div>
-        <button onclick="logout()" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="margin-top:8px;font-size:0.8rem;">Log Out</button>
+        
+        <div class="contributor-rating" style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 1rem; text-align: center;">
+          <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;">Contributor Rating</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: #fff;">5 <span style="color:var(--primary);">⭐</span></div>
+          <div style="font-size: 0.65rem; color: var(--text-muted);">(0 Downloads)</div>
+        </div>
+
+        <button onclick="logout()" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="padding: 10px; font-size: 0.85rem; border-radius: 12px;">Log Out</button>
       </div>
     </aside>`;
   const container = document.getElementById('sidebar-container');
