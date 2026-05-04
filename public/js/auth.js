@@ -30,11 +30,18 @@ function renderSidebar(activePage = '') {
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle Menu">☰</button>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     <aside class="sidebar" id="sidebar">
-      <a href="/dashboard" class="sidebar-logo" style="margin-bottom: 2rem;">
-        <div class="logo-icon" style="width: 44px; height: 44px; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 800; color: #fff; box-shadow: 0 0 20px rgba(99, 102, 241, 0.4); flex-shrink: 0;">SS</div>
-        <div class="logo-text-wrap" style="margin-left: 12px;">
-          <div class="logo-text" style="font-size: 1.4rem; font-weight: 800; line-height: 1; color: #fff;">Study<span style="color:var(--primary); opacity: 0.7;">Share</span></div>
-          <div class="logo-tagline" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 4px;">Your Campus Brain</div>
+      <a href="/dashboard" class="sidebar-logo" style="margin-bottom: 2.5rem; display: flex; align-items: center; gap: 12px; text-decoration: none;">
+        <div class="logo-wrapper" style="width: 48px; height: 48px; position: relative; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #6366f1, #a855f7); border-radius: 14px; box-shadow: 0 8px 16px rgba(99, 102, 241, 0.3);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div style="position: absolute; top: -5px; right: -5px; background: #ff9800; width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1a1a2e;"></div>
+        </div>
+        <div class="logo-text-wrap">
+          <div class="logo-text" style="font-size: 1.5rem; font-weight: 800; color: #fff; line-height: 1;">Study<span style="color:var(--primary);">Share</span></div>
+          <div class="logo-tagline" style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px;">Your Campus Brain</div>
         </div>
       </a>
       <nav class="sidebar-nav">
