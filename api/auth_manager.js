@@ -42,7 +42,7 @@ module.exports = async function handler(req, res) {
 
   try {
     switch (action) {
-      case 'login':
+      case 'login': {
         const { email, password } = req.body;
         const lowLoginEmail = (email || '').toLowerCase().trim();
         const { data: user, error } = await supabase.from('users').select('*').eq('email', lowLoginEmail).single();
@@ -51,8 +51,9 @@ module.exports = async function handler(req, res) {
         if (!(await bcrypt.compare(password, user.password))) return res.status(401).json({ error: 'Invalid email or password.' });
         const token = signToken({ userId: user.id, name: user.name, role: user.role, email: user.email, profile_pic: user.profile_pic });
         return res.status(200).json({ token, role: user.role });
+      }
 
-      case 'register':
+      case 'register': {
         const { name, email: remail, password: rpass } = req.body;
         const lowEmail = (remail || '').toLowerCase().trim();
         const isSuperAdmin = lowEmail === 'dharmchaniyara7368@gmail.com';
@@ -63,8 +64,58 @@ module.exports = async function handler(req, res) {
         if (rErr) return res.status(400).json({ error: rErr.message });
         const rToken = signToken({ userId: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email, profile_pic: newUser.profile_pic });
         return res.status(200).json({ token: rToken, role: newUser.role });
+      }
 
-      case 'forgot':
+      case 'profile': {
+        const requester = verifyRequest(req);
+        if (!requester) return res.status(401).json({ error: 'Unauthorized.' });
+        const { id } = req.query;
+        const targetUserId = id ? parseInt(id) : requester.userId;
+        const { data: pUser } = await supabase.from('users').select('id, name, email, role, profile_pic').eq('id', targetUserId).single();
+        if (!pUser) return res.status(404).json({ error: 'User not found.' });
+        
+        const { count: uCount } = await supabase.from('notes').select('*', { count: 'exact', head: true }).eq('user_id', targetUserId);
+        const { data: dData } = await supabase.from('notes').select('download_count').eq('user_id', targetUserId);
+        const tDown = (dData || []).reduce((sum, n) => sum + (n.download_count || 0), 0);
+        
+        const { data: revs } = await supabase.from('user_reviews').select('rating').eq('reviewee_id', targetUserId);
+        const avgR = revs && revs.length > 0 ? (revs.reduce((sum, r) => sum + r.rating, 0) / revs.length).toFixed(1) : 0;
+        
+        const { data: uDocs } = await supabase.from('notes').select('id, title, category, uploaded_at, download_count, subjects(name)').eq('user_id', targetUserId).order('uploaded_at', { ascending: false });
+        
+        return res.status(200).json({
+          user: pUser, 
+          stats: { uploadCount: uCount || 0, totalDownloads: tDown, avgRating: avgR },
+          documents: (uDocs || []).map(d => ({ ...d, subject_name: d.subjects?.name || 'Unknown' }))
+        });
+      }
+
+      case 'update_profile_pic': {
+        const curUser = verifyRequest(req);
+        if (!curUser) return res.status(401).json({ error: 'Unauthorized.' });
+        const { fileBase64, mimeType } = req.body;
+        if (!fileBase64) return res.status(400).json({ error: 'No file provided.' });
+        
+        const fileBuffer = Buffer.from(fileBase64, 'base64');
+        const storageFileName = `profile_${curUser.userId}_${Date.now()}.png`;
+        const { error: storageError } = await supabase.storage.from('uploads').upload(storageFileName, fileBuffer, { contentType: mimeType || 'image/png', upsert: true });
+        if (storageError) return res.status(500).json({ error: 'Upload failed.' });
+        
+        const { data: { publicUrl } } = supabase.storage.from('uploads').getPublicUrl(storageFileName);
+        await supabase.from('users').update({ profile_pic: publicUrl }).eq('id', curUser.userId);
+        
+        const updatedToken = signToken({ ...curUser, profile_pic: publicUrl });
+        return res.status(200).json({ success: true, url: publicUrl, token: updatedToken });
+      }
+
+      case 'demo': {
+        const { data: demoUser } = await supabase.from('users').select('*').eq('email', 'demo@example.com').single();
+        if (!demoUser) return res.status(404).json({ error: 'Demo account not found.' });
+        const dToken = signToken({ userId: demoUser.id, name: demoUser.name, role: demoUser.role, email: demoUser.email, profile_pic: demoUser.profile_pic });
+        return res.status(200).json({ token: dToken, role: demoUser.role });
+      }
+
+      case 'forgot': {
         const { email: fEmail } = req.body;
         const { data: fUser } = await supabase.from('users').select('id, name').eq('email', fEmail).maybeSingle();
         if (!fUser) return res.status(404).json({ error: 'No account found with this email.' });
@@ -92,8 +143,9 @@ module.exports = async function handler(req, res) {
           return res.status(200).json({ message: 'OTP sent successfully.' });
         }
         return res.status(500).json({ error: 'Email service not configured.' });
+      }
 
-      case 'reset':
+      case 'reset': {
         const { email: rsEmail, otp: rsOtp, password: newPass } = req.body;
         const { data: resetEntry } = await supabase.from('password_resets').select('*').eq('email', rsEmail).eq('token', rsOtp).gt('expires_at', new Date().toISOString()).single();
         if (!resetEntry) return res.status(400).json({ error: 'Invalid or expired code.' });
@@ -101,6 +153,7 @@ module.exports = async function handler(req, res) {
         await supabase.from('users').update({ password: newHashed }).eq('email', rsEmail);
         await supabase.from('password_resets').delete().eq('email', rsEmail);
         return res.status(200).json({ message: 'Password reset successful.' });
+      }
 
       case 'debug':
         return res.status(200).json({
