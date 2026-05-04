@@ -49,7 +49,12 @@ function renderSidebar(activePage = '') {
           <span class="nav-icon nav-icon-bounce">📚</span> Resources
         </a>
         <a href="#"><span class="nav-icon nav-icon-bounce">🔖</span> Bookmarks</a>
-        <a href="/profile"><span class="nav-icon nav-icon-bounce">👤</span> Profile</a>
+        
+        <div style="margin-top: auto;"></div>
+        
+        <a href="/profile" class="${activePage === 'profile' ? 'active' : ''}">
+          <span class="nav-icon nav-icon-bounce">👤</span> Profile
+        </a>
         ${user.role === 'admin' ? `
         <a href="/admin/dashboard.html" class="${activePage === 'admin' ? 'active' : ''}">
           <span class="nav-icon nav-icon-bounce">⚙️</span> Admin Panel
