@@ -50,6 +50,39 @@ module.exports = async function handler(req, res) {
         await supabase.from('requests').insert({ user_id: user.userId, subject_id: rsid, title, description: details });
         return res.status(200).json({ success: true });
 
+      case 'edit_note': {
+        const u = verifyRequest(req);
+        if (!u) return res.status(401).json({ error: 'Unauthorized.' });
+        const { note_id, title: nTitle, category: nCat } = req.body;
+        
+        // Ownership check
+        const { data: note } = await supabase.from('notes').select('user_id').eq('id', note_id).single();
+        if (!note || note.user_id !== u.userId) return res.status(403).json({ error: 'Forbidden. You do not own this document.' });
+
+        const { error: updateErr } = await supabase.from('notes').update({ title: nTitle, category: nCat }).eq('id', note_id);
+        if (updateErr) throw updateErr;
+        return res.status(200).json({ success: true });
+      }
+
+      case 'delete_note': {
+        const u = verifyRequest(req);
+        if (!u) return res.status(401).json({ error: 'Unauthorized.' });
+        const { note_id: delId } = req.body;
+
+        // Ownership check
+        const { data: delNote } = await supabase.from('notes').select('user_id, file_path').eq('id', delId).single();
+        if (!delNote || delNote.user_id !== u.userId) return res.status(403).json({ error: 'Forbidden.' });
+
+        // Delete from DB
+        const { error: delErr } = await supabase.from('notes').delete().eq('id', delId);
+        if (delErr) throw delErr;
+
+        // Note: We don't delete from storage here as it might be shared or kept for logs, 
+        // but typically you'd call supabase.storage.from('resources').remove([delNote.file_path])
+        
+        return res.status(200).json({ success: true });
+      }
+
       default:
         return res.status(400).json({ error: 'Invalid action.' });
     }

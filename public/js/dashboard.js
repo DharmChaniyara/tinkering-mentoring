@@ -107,7 +107,15 @@ function setupUploadForm() {
     const res = await fetch('/api/upload', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(payload) });
     const data = await res.json();
     btn.disabled = false; btn.textContent = 'Upload →';
-    if (res.ok) { closeModal(); window.location.href = `/subject?id=${data.subjectId}` + (data.unitNumber ? `&unit=${data.unitNumber}` : ''); } else { alert('Upload failed: ' + (data.error || 'Unknown error')); }
+    if (res.ok) { 
+      showToast('Document uploaded successfully!', 'success');
+      closeModal(); 
+      setTimeout(() => {
+        window.location.href = `/subject?id=${data.subjectId}` + (data.unitNumber ? `&unit=${data.unitNumber}` : '');
+      }, 1500);
+    } else { 
+      showToast('Upload failed: ' + (data.error || 'Unknown error'), 'error'); 
+    }
   });
 }
 function showFilePreview(file) {
@@ -127,7 +135,12 @@ function setupRequestForm() {
     const res = await fetch('/api/content', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ ...body, action: 'request_doc' }) });
     const data = await res.json();
     document.getElementById('requestDocModal').classList.remove('open');
-    alert(res.ok ? 'Request submitted!' : 'Error: ' + data.error);
+    if (res.ok) {
+      showToast('Request submitted successfully!', 'success');
+      this.reset();
+    } else {
+      showToast('Error: ' + data.error, 'error');
+    }
   });
 }
 function setupSearch(notes, subjects) {

@@ -10,12 +10,65 @@
     --shadow: 0 8px 32px rgba(0, 0, 0, 0.4); --shadow-glow: 0 0 30px rgba(124, 58, 237, 0.15); --scrollbar-thumb:#1e293b;
 }
 [data-theme="light"] {
-    --bg-primary: #f0f2f8; --bg-secondary: #e8eaf2; --bg-card: rgba(255, 255, 255, 0.85);
-    --glass-bg: rgba(255, 255, 255, 0.65); --glass-border: rgba(0, 0, 0, 0.06);
-    --text-primary: #0f172a; --text-secondary: #475569; --text-muted: #94a3b8;
-    --input-bg: rgba(255, 255, 255, 0.9); --input-border: rgba(0, 0, 0, 0.1);
-    --shadow: 0 8px 32px rgba(0, 0, 0, 0.06); --shadow-glow: 0 0 20px rgba(124, 58, 237, 0.08); --scrollbar-thumb:#cbd5e1;
+    --bg-primary:     #f8fafc;
+    --bg-secondary:   #f1f5f9;
+    --bg-card:        #ffffff;
+
+    --glass-bg:       rgba(255, 255, 255, 0.7);
+    --glass-border:   rgba(0, 0, 0, 0.08);
+
+    --text-primary:   #0f172a;
+    --text-secondary: #475569;
+    --text-muted:     #94a3b8;
+
+    --input-bg:       #ffffff;
+    --input-border:   #e2e8f0;
+
+    --shadow:         0 10px 40px rgba(0, 0, 0, 0.04);
+    --shadow-glow:    0 0 20px rgba(124, 58, 237, 0.06);
+    --scrollbar-thumb:#cbd5e1;
 }
+
+/* Toast System */
+#toast-container {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--bg-card);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 14px 20px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 280px;
+    transform: translateX(120%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    pointer-events: all;
+    border-left: 4px solid var(--primary);
+}
+
+.toast.show { transform: translateX(0); }
+.toast.success { border-left-color: var(--success); }
+.toast.error { border-left-color: var(--danger); }
+.toast.info { border-left-color: var(--accent); }
+
+.toast-icon { font-size: 1.2rem; }
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; scrollbar-color: var(--scrollbar-thumb) var(--bg-primary); scrollbar-width: thin; }
 body { font-family: 'Inter', sans-serif; font-size: 15px; line-height: 1.6; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; overflow-x: hidden; transition: background 0.5s ease, color 0.4s ease; }
