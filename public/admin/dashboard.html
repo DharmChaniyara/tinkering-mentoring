@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Dashboard | Study Share</title>
   <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <script>(function(){var t=localStorage.getItem('gsfc_theme')||'dark';document.documentElement.setAttribute('data-theme',t);})();</script>
   <style>
     .admin-tabs { display: flex; gap: 10px; margin-bottom: 24px; overflow-x: auto; padding-bottom: 8px; }
@@ -31,13 +32,21 @@
     <header class="topbar">
       <div class="topbar-search" style="opacity: 0;"></div>
       <div class="topbar-actions">
-        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">☀️</button>
+        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle" style="background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); display:flex; align-items:center; gap:8px; padding:6px 14px;">
+          <span style="color:#fbbf24;">☀️</span> Light
+        </button>
       </div>
     </header>
     <div class="page-content">
-      <div style="margin-bottom:2rem;" class="slide-in-up">
-        <h1 style="font-size:1.8rem;margin-bottom:4px;"><span class="gradient-text">Admin Panel</span></h1>
-        <p style="color:var(--text-muted);font-size:0.95rem;">Manage platform resources, users, and reports.</p>
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 2rem;">
+        <div style="display: flex; gap: 4px;">
+          <div style="width: 4px; height: 24px; background: var(--primary); border-radius: 2px;"></div>
+          <div style="width: 4px; height: 24px; background: var(--secondary); border-radius: 2px; opacity: 0.5;"></div>
+        </div>
+        <div>
+          <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -1px;"><span class="gradient-text">Admin Panel</span></h1>
+          <p style="color:var(--text-muted);font-size:0.9rem;">Manage platform resources, users, and reports.</p>
+        </div>
       </div>
       <div class="admin-tabs slide-in-up">
         <button class="admin-tab active" data-target="dashboard">📊 Dashboard</button>
@@ -54,7 +63,10 @@
           <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="stat-subjects">0</div><div class="stat-label">Subjects</div></div>
           <div class="stat-card"><div class="stat-icon">🚨</div><div class="stat-value" id="stat-reports">0</div><div class="stat-label">Reports</div></div>
         </div>
-        <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Recent Documents</h3>
+        <div style="display: flex; align-items: center; gap: 10px; margin-top: 2rem; margin-bottom: 1.5rem;">
+          <div style="width: 3px; height: 18px; background: var(--secondary); border-radius: 2px;"></div>
+          <h3 style="font-size: 1.2rem; font-weight: 700;">Recent Documents</h3>
+        </div>
         <div style="overflow-x: auto;">
           <table>
             <thead><tr><th>Title</th><th>Uploader</th><th>Date</th></tr></thead>

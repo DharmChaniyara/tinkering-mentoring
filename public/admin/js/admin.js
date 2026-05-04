@@ -151,7 +151,7 @@ async function fetchReports() {
 async function actionReport(id, action) {
   if (action === 'delete_document' && !confirm('Delete the document associated with this report?')) return;
   try {
-    const res = await fetch('/api/admin_panel', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ action: 'report_resolve', id }) });
+    const res = await fetch('/api/admin_panel', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ action: 'report_resolve', id, reportAction: action }) });
     if (res.ok) fetchReports();
   } catch(e) { console.error(e); }
 }

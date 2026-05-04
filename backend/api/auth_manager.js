@@ -23,13 +23,10 @@ module.exports = async function handler(req, res) {
         const { name, email: remail, password: rpass } = req.body;
         const lowEmail = (remail || '').toLowerCase().trim();
         
-        // 1. Domain restriction (GSFC only, except for the Super Admin)
         const isSuperAdmin = lowEmail === 'dharmchaniyara7368@gmail.com';
-        const isGsfcEmail = lowEmail.endsWith('@gsfcuniversity.ac.in');
         
-        if (!isGsfcEmail && !isSuperAdmin) {
-          return res.status(400).json({ error: 'Registration is restricted to GSFC University emails (@gsfcuniversity.ac.in).' });
-        }
+        // Removed GSFC email restriction to allow all users to join.
+
 
         const hashed = await bcrypt.hash(rpass, 10);
         const { data: newUser, error: rErr } = await supabase.from('users').insert({ 

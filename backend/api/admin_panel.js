@@ -90,8 +90,13 @@ module.exports = async function handler(req, res) {
           await supabase.from('subjects').delete().eq('id', sid);
           return res.status(200).json({ message: 'Subject deleted.' });
         }
-        await supabase.from('subjects').insert({ name, type });
-        return res.status(200).json({ message: 'Subject added.' });
+        if (sid) {
+          await supabase.from('subjects').update({ name, type }).eq('id', sid);
+          return res.status(200).json({ message: 'Subject updated.' });
+        } else {
+          await supabase.from('subjects').insert({ name, type });
+          return res.status(200).json({ message: 'Subject added.' });
+        }
 
       case 'reports_list':
         const { data: reps } = await supabase.from('reported_documents').select('*, notes(title), users(name)').order('created_at', { ascending: false });
@@ -100,7 +105,13 @@ module.exports = async function handler(req, res) {
         })) });
 
       case 'report_resolve':
-        const { id: rid } = req.body;
+        const { id: rid, reportAction } = req.body;
+        if (reportAction === 'delete_document') {
+           const { data: reportData } = await supabase.from('reported_documents').select('document_id').eq('id', rid).single();
+           if (reportData && reportData.document_id) {
+             await supabase.from('notes').delete().eq('id', reportData.document_id);
+           }
+        }
         await supabase.from('reported_documents').delete().eq('id', rid);
         return res.status(200).json({ message: 'Report resolved.' });
 
@@ -112,6 +123,10 @@ module.exports = async function handler(req, res) {
 
       case 'request_update':
         const { id: reqid, status: rStat } = req.body;
+        if (rStat === 'delete') {
+          await supabase.from('requests').delete().eq('id', reqid);
+          return res.status(200).json({ message: 'Request deleted.' });
+        }
         await supabase.from('requests').update({ status: rStat }).eq('id', reqid);
         return res.status(200).json({ message: `Request ${rStat}.` });
 
