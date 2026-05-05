@@ -1563,28 +1563,29 @@ h1, h2, h3, h4 {
 .theme-toggle {
     appearance: none;
     -webkit-appearance: none;
-    background: var(--input-bg);
-    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    border: 1px solid var(--primary);
     color: var(--text-primary);
-    padding: 8px 18px;
+    padding: 8px 20px;
     cursor: pointer;
     font-size: 0.85rem;
     font-family: 'Inter', sans-serif;
-    font-weight: 600;
+    font-weight: 700;
     border-radius: 50px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 4px 15px var(--primary-glow);
+    text-transform: capitalize;
 }
 
 .theme-toggle:hover {
-    background: var(--glass-bg);
-    border-color: var(--primary);
+    background: var(--primary);
+    color: #fff;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px var(--primary-glow);
+    box-shadow: 0 8px 25px var(--primary-glow);
 }
 
 /* Animations section continues below... */
