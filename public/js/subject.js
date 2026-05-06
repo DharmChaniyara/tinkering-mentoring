@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   } else {
     gridEl.innerHTML = notes.map(n => {
       const noteLbl = isPractical ? 'Practical' : 'Unit';
-      return `<div class="note-card" onclick="window.location='/view_document?id=${n.id}'"><div class="note-file-icon">${fileIcon(n.file_type)}</div><div class="note-info"><h4>${escHtml(n.title)}</h4><div class="note-detail"><span class="file-badge">${escHtml(n.file_type || '')}</span>${n.unit_number ? `<span class="file-badge" style="background:rgba(6,182,212,0.1);color:var(--secondary);">${noteLbl} ${n.unit_number}</span>` : ''}</div><div class="note-detail" style="margin-top:6px;">${escHtml(n.uploader_name)} · ${new Date(n.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div></div></div>`;
+      return `<div class="note-card" onclick="window.location='/view_document?id=${n.id}'"><div class="note-file-icon">${fileIcon(n.file_type)}</div><div class="note-info"><h4>${escHtml(n.title)}</h4><div class="note-detail"><span class="file-badge">${escHtml(n.file_type || '')}</span>${n.unit_number ? `<span class="file-badge" style="background:rgba(233, 196, 106,0.1);color:var(--secondary);">${noteLbl} ${n.unit_number}</span>` : ''}</div><div class="note-detail" style="margin-top:6px;">${escHtml(n.uploader_name)} · ${new Date(n.uploaded_at).toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric'})}</div></div></div>`;
     }).join('');
   }
 });

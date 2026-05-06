@@ -80,7 +80,7 @@ function renderSidebar(activePage = '') {
           </div>
         </div>
         
-        <div class="contributor-rating" style="background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 1rem; text-align: center;">
+        <div class="contributor-rating" style="background: rgba(212, 163, 115, 0.1); border: 1px solid rgba(212, 163, 115, 0.2); border-radius: 12px; padding: 12px; margin-bottom: 1rem; text-align: center;">
           <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 4px;">Contributor Rating</div>
           <div style="font-size: 1.1rem; font-weight: 800; color: #fff;">5 <span style="color:var(--primary);">⭐</span></div>
           <div style="font-size: 0.65rem; color: var(--text-muted);">(0 Downloads)</div>

@@ -17,8 +17,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const catNotes = { Notes: [], PYQs: [], Assignments: [] };
   allNotes.forEach((n) => { const cat = n.category || 'Notes'; if (!catNotes[cat]) catNotes[cat] = []; catNotes[cat].push(n); });
   renderNoteCarousel('carousel-notes-cat', catNotes['Notes'], 'carousel-section-notes');
-  renderNoteCarousel('carousel-pyq-cat', catNotes['PYQs'], 'carousel-section-pyq', 'rgba(6,182,212,0.1)', 'var(--secondary)');
-  renderNoteCarousel('carousel-ass-cat', catNotes['Assignments'], 'carousel-section-ass', 'rgba(236,72,153,0.1)', 'var(--pink)');
+  renderNoteCarousel('carousel-pyq-cat', catNotes['PYQs'], 'carousel-section-pyq', 'rgba(233,196,106,0.1)', 'var(--secondary)');
+  renderNoteCarousel('carousel-ass-cat', catNotes['Assignments'], 'carousel-section-ass', 'rgba(139, 94, 52,0.1)', 'var(--pink)');
   renderSubjectCarousel('carousel-theory', theorySubjects, 'theory');
   renderSubjectCarousel('carousel-practical', practicalSubjects, 'practical');
   populateSubjectSelect('subjectSelect', subjects);

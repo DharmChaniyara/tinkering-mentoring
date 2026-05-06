@@ -1,13 +1,13 @@
 :root {
-  --bg-dark: #0f172a;
-  --panel-bg: rgba(30, 41, 59, 0.7);
+  --bg-dark: #1c1614;
+  --panel-bg: rgba(43, 34, 30, 0.7);
   --panel-border: rgba(255, 255, 255, 0.1);
-  --accent-blue: #3b82f6;
-  --accent-purple: #8b5cf6;
-  --accent-green: #10b981;
-  --accent-red: #ef4444;
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
+  --accent-blue: #bc6c25;
+  --accent-purple: #d4a373;
+  --accent-green: #81b29a;
+  --accent-red: #e07a5f;
+  --text-main: #fdf8f5;
+  --text-muted: #8a7970;
   --font-main: 'Inter', system-ui, sans-serif;
 }
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: var(--font-main); }
@@ -49,15 +49,15 @@ tr:hover td { background: rgba(255,255,255,0.05); }
 .badge.admin { background: rgba(139, 92, 246, 0.2); color: var(--accent-purple); border: 1px solid rgba(139,92,246,0.5); }
 .btn { padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; transition: all 0.2s; color: white; }
 .btn-sm { padding: 4px 10px; font-size: 12px; }
-.btn-primary { background: var(--accent-blue); box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
-.btn-primary:hover { background: #2563eb; box-shadow: 0 0 15px rgba(59, 130, 246, 0.6); }
+.btn-primary { background: var(--accent-blue); box-shadow: 0 0 10px rgba(188, 108, 37, 0.4); }
+.btn-primary:hover { background: #8b5e34; box-shadow: 0 0 15px rgba(188, 108, 37, 0.6); }
 .btn-danger { background: transparent; border: 1px solid var(--accent-red); color: var(--accent-red); }
 .btn-danger:hover { background: var(--accent-red); color: white; box-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
 .btn-success { background: transparent; border: 1px solid var(--accent-green); color: var(--accent-green); }
 .btn-success:hover { background: var(--accent-green); color: white; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
 .controls-bar { display: flex; gap: 16px; margin-bottom: 24px; }
 .search-input { background: rgba(0,0,0,0.2); border: 1px solid var(--panel-border); color: white; padding: 10px 16px; border-radius: 8px; width: 300px; outline: none; }
-.search-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+.search-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 10px rgba(188, 108, 37, 0.2); }
 .view-section { display: none; animation: fadeIn 0.3s ease; }
 .view-section.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
