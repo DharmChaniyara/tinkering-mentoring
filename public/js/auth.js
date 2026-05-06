@@ -86,7 +86,7 @@ function renderSidebar(activePage = '') {
           <div style="font-size: 0.65rem; color: var(--text-muted);">(0 Downloads)</div>
         </div>
 
-        <button onclick="logout()" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="padding: 10px; font-size: 0.85rem; border-radius: 12px;">Log Out</button>
+        <button onclick="logout()" class="cyber-btn cyber-btn-ghost cyber-btn-full" style="padding: 10px; font-size: 0.85rem; border-radius: 50px;">Log Out</button>
       </div>
     </aside>`;
   const container = document.getElementById('sidebar-container');
