@@ -17,7 +17,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('subject-name-h3').textContent = subject.name;
   document.getElementById('subject-code-p').textContent = `${subject.code || ''} · ${isPractical ? 'Practical' : 'Theory'}`;
   const syllabusBtnEl = document.getElementById('syllabus-btn');
-  if (subject.syllabus_file) { syllabusBtnEl.href = '/' + subject.syllabus_file; syllabusBtnEl.style.display = ''; } else { syllabusBtnEl.style.display = 'none'; }
+  if (subject.syllabus_file) {
+    syllabusBtnEl.href = subject.syllabus_file.startsWith('http') ? subject.syllabus_file : '/' + subject.syllabus_file;
+    syllabusBtnEl.style.display = '';
+  } else {
+    syllabusBtnEl.style.display = 'none';
+  }
   document.getElementById('subject-title').textContent = subject.name;
   document.getElementById('subject-meta').textContent = `${units.length} ${isPractical ? 'Lab Experiments' : 'Syllabus Units'} · ${notes.length} Resources Available`;
   const filtersEl = document.getElementById('unit-filters');
