@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
           })) : []
         });
 
-      case 'users_list':
+      case 'users_list': {
         const { search = '', page = 1, limit = 50 } = req.query;
         const offset = (page - 1) * limit;
         let uQuery = supabase.from('users').select('id, name, email, role, status, google_id', { count: 'exact' });
@@ -49,7 +49,34 @@ module.exports = async function handler(req, res) {
         const { data: users, count: uCount } = await uQuery
           .order('id', { ascending: false })
           .range(offset, offset + limit - 1);
-        return res.status(200).json({ users, total: uCount });
+
+        // Fetch user reviews manually to calculate avg rating and review count
+        const { data: userReviews, error: reviewsErr } = await supabase
+          .from('user_reviews')
+          .select('reviewee_id, rating');
+        
+        const reviewMap = {};
+        if (!reviewsErr && userReviews) {
+          userReviews.forEach(r => {
+            if (!reviewMap[r.reviewee_id]) {
+              reviewMap[r.reviewee_id] = { sum: 0, count: 0 };
+            }
+            reviewMap[r.reviewee_id].sum += r.rating;
+            reviewMap[r.reviewee_id].count += 1;
+          });
+        }
+
+        const usersWithRatings = (users || []).map(u => {
+          const ratingData = reviewMap[u.id];
+          return {
+            ...u,
+            avg_rating: ratingData ? (ratingData.sum / ratingData.count).toFixed(1) : 'N/A',
+            review_count: ratingData ? ratingData.count : 0
+          };
+        });
+
+        return res.status(200).json({ users: usersWithRatings, total: uCount });
+      }
 
       case 'user_update':
         const { id: uid, subAction } = req.body;
@@ -61,15 +88,47 @@ module.exports = async function handler(req, res) {
         await supabase.from('users').update({ status: newStatus }).eq('id', uid);
         return res.status(200).json({ message: `User ${subAction}ed.` });
 
-      case 'docs_list':
+      case 'docs_list': {
         const { docSearch = '', docStatus = '' } = req.query;
         let dQuery = supabase.from('notes').select('id, title, category, uploaded_at, status, users(name), subjects(name)');
         if (docSearch) dQuery = dQuery.ilike('title', `%${docSearch}%`);
         if (docStatus) dQuery = dQuery.eq('status', docStatus);
         const { data: docs } = await dQuery.order('uploaded_at', { ascending: false }).limit(100);
-        return res.status(200).json({ documents: docs.map(d => ({
-          ...d, uploader_name: d.users?.name || 'Unknown', subject_name: d.subjects?.name || 'Unknown'
-        })) });
+
+        // Fetch ratings manually
+        const { data: docRatings, error: ratingsErr } = await supabase
+          .from('document_ratings')
+          .select('document_id, rating');
+        
+        const ratingMap = {};
+        if (!ratingsErr && docRatings) {
+          docRatings.forEach(r => {
+            if (!ratingMap[r.document_id]) {
+              ratingMap[r.document_id] = { sum: 0, count: 0 };
+            }
+            ratingMap[r.document_id].sum += r.rating;
+            ratingMap[r.document_id].count += 1;
+          });
+        }
+
+        const docsWithRatings = (docs || []).map(d => {
+          const ratingData = ratingMap[d.id];
+          return {
+            id: d.id,
+            title: d.title,
+            category: d.category,
+            uploaded_at: d.uploaded_at,
+            status: d.status,
+            file_path: d.file_path,
+            uploader_name: d.users?.name || 'Unknown',
+            subject_name: d.subjects?.name || 'Unknown',
+            avg_rating: ratingData ? (ratingData.sum / ratingData.count).toFixed(1) : 'N/A',
+            rating_count: ratingData ? ratingData.count : 0
+          };
+        });
+
+        return res.status(200).json({ documents: docsWithRatings });
+      }
 
       case 'doc_update':
         const { id: did, status: dStat, subAction: dSub } = req.body;
@@ -85,23 +144,25 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ subjects: subjs });
 
       case 'subject_update':
-        const { id: sid, name, type, subAction: sSub } = req.body;
+        const { id: sid, name, code, type, syllabus_file, subAction: sSub } = req.body;
         if (sSub === 'delete') {
           await supabase.from('subjects').delete().eq('id', sid);
           return res.status(200).json({ message: 'Subject deleted.' });
         }
         if (sid) {
-          await supabase.from('subjects').update({ name, type }).eq('id', sid);
+          await supabase.from('subjects').update({ name, code, type, syllabus_file }).eq('id', sid);
           return res.status(200).json({ message: 'Subject updated.' });
         } else {
-          await supabase.from('subjects').insert({ name, type });
+          await supabase.from('subjects').insert({ name, code, type, syllabus_file });
           return res.status(200).json({ message: 'Subject added.' });
         }
 
       case 'reports_list':
         const { data: reps } = await supabase.from('reported_documents').select('*, notes(title), users(name)').order('created_at', { ascending: false });
-        return res.status(200).json({ reports: reps.map(r => ({
-          ...r, doc_title: r.notes?.title || 'Unknown', reporter_name: r.users?.name || 'Unknown'
+        return res.status(200).json({ reports: (reps || []).map(r => ({
+          ...r,
+          document_title: r.notes?.title || 'Unknown',
+          reported_by: r.users?.name || 'Unknown'
         })) });
 
       case 'report_resolve':
@@ -117,8 +178,9 @@ module.exports = async function handler(req, res) {
 
       case 'requests_list':
         const { data: reqs } = await supabase.from('requests').select('*, users(name)').order('created_at', { ascending: false });
-        return res.status(200).json({ requests: reqs.map(r => ({
-          ...r, requester_name: r.users?.name || 'Unknown'
+        return res.status(200).json({ requests: (reqs || []).map(r => ({
+          ...r,
+          requested_by: r.users?.name || 'Unknown'
         })) });
 
       case 'request_update':
@@ -130,6 +192,82 @@ module.exports = async function handler(req, res) {
         await supabase.from('requests').update({ status: rStat }).eq('id', reqid);
         return res.status(200).json({ message: `Request ${rStat}.` });
 
+      case 'user_reviews_details': {
+        const { userId } = req.query;
+        const { data: reviews, error: reviewsErr } = await supabase
+          .from('user_reviews')
+          .select('id, rating, comment, created_at, reviewer_id')
+          .eq('reviewee_id', parseInt(userId))
+          .order('created_at', { ascending: false });
+        if (reviewsErr) throw reviewsErr;
+        
+        const reviewerIds = [...new Set((reviews || []).map(r => r.reviewer_id))];
+        let reviewerMap = {};
+        if (reviewerIds.length > 0) {
+          const { data: reviewers, error: revErr } = await supabase
+            .from('users')
+            .select('id, name, email')
+            .in('id', reviewerIds);
+          if (revErr) throw revErr;
+          (reviewers || []).forEach(u => { reviewerMap[u.id] = u; });
+        }
+        
+        const detailedReviews = (reviews || []).map(r => ({
+          id: r.id,
+          rating: r.rating,
+          comment: r.comment,
+          created_at: r.created_at,
+          reviewer_name: reviewerMap[r.reviewer_id]?.name || 'Unknown',
+          reviewer_email: reviewerMap[r.reviewer_id]?.email || ''
+        }));
+        
+        return res.status(200).json({ reviews: detailedReviews });
+      }
+
+      case 'delete_user_review': {
+        const { reviewId } = req.body;
+        const { error } = await supabase.from('user_reviews').delete().eq('id', parseInt(reviewId));
+        if (error) throw error;
+        return res.status(200).json({ success: true });
+      }
+
+      case 'doc_ratings_details': {
+        const { docId } = req.query;
+        const { data: ratings, error: ratingsErr } = await supabase
+          .from('document_ratings')
+          .select('id, rating, created_at, user_id')
+          .eq('document_id', parseInt(docId))
+          .order('created_at', { ascending: false });
+        if (ratingsErr) throw ratingsErr;
+        
+        const userIds = [...new Set((ratings || []).map(r => r.user_id))];
+        let userMap = {};
+        if (userIds.length > 0) {
+          const { data: users, error: usrErr } = await supabase
+            .from('users')
+            .select('id, name, email')
+            .in('id', userIds);
+          if (usrErr) throw usrErr;
+          (users || []).forEach(u => { userMap[u.id] = u; });
+        }
+        
+        const detailedRatings = (ratings || []).map(r => ({
+          id: r.id,
+          rating: r.rating,
+          created_at: r.created_at,
+          user_name: userMap[r.user_id]?.name || 'Unknown',
+          user_email: userMap[r.user_id]?.email || ''
+        }));
+        
+        return res.status(200).json({ ratings: detailedRatings });
+      }
+
+      case 'delete_doc_rating': {
+        const { ratingId } = req.body;
+        const { error } = await supabase.from('document_ratings').delete().eq('id', parseInt(ratingId));
+        if (error) throw error;
+        return res.status(200).json({ success: true });
+      }
       default:
         return res.status(400).json({ error: 'Invalid action.' });
     }

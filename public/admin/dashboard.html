@@ -80,7 +80,7 @@
         </div>
         <div style="overflow-x: auto;">
           <table>
-            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="usersTable"></tbody>
           </table>
         </div>
@@ -97,18 +97,18 @@
         </div>
         <div style="overflow-x: auto;">
           <table>
-            <thead><tr><th>Title</th><th>Subject</th><th>Uploader</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Title</th><th>Subject</th><th>Uploader</th><th>Date</th><th>Rating</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="docsTable"></tbody>
           </table>
         </div>
       </section>
       <section id="view-subjects" class="view-section">
         <div style="margin-bottom: 1rem;">
-          <button class="cyber-btn cyber-btn-success" onclick="promptAddSubject()">+ Add Subject</button>
+          <button class="cyber-btn cyber-btn-success" onclick="openSubjectModal()">+ Add Subject</button>
         </div>
         <div style="overflow-x: auto;">
           <table>
-            <thead><tr><th>Name</th><th>Type</th><th>Actions</th></tr></thead>
+            <thead><tr><th>Name</th><th>Code</th><th>Type</th><th>Syllabus File</th><th>Actions</th></tr></thead>
             <tbody id="subjectsTable"></tbody>
           </table>
         </div>
@@ -129,6 +129,62 @@
           </table>
         </div>
       </section>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Subject Modal -->
+<div id="subjectModal" class="modal-overlay">
+  <div class="modal-content pop-in" style="max-width: 500px;">
+    <div class="modal-header">
+      <h2 id="subjectModalTitle" class="gradient-text">Add Subject</h2>
+      <button class="modal-close" onclick="closeSubjectModal()">✕</button>
+    </div>
+    <form id="subjectForm" style="margin-top: 1rem;">
+      <input type="hidden" id="subjectId">
+      <div class="form-group">
+        <label>Subject Name</label>
+        <input type="text" id="subjName" class="form-input" required placeholder="e.g. Mathematics - II">
+      </div>
+      <div class="form-group">
+        <label>Subject Code</label>
+        <input type="text" id="subjCode" class="form-input" placeholder="e.g. BTCS204">
+      </div>
+      <div class="form-group">
+        <label>Subject Type</label>
+        <select id="subjType" class="form-input" required>
+          <option value="theory">Theory</option>
+          <option value="practical">Practical</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Syllabus PDF URL</label>
+        <input type="text" id="subjSyllabusFile" class="form-input" placeholder="e.g. https://.../uploads/syllabus.pdf">
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:1.5rem;">
+        <button type="button" class="cyber-btn cyber-btn-ghost" onclick="closeSubjectModal()">Cancel</button>
+        <button type="submit" class="cyber-btn cyber-btn-success">Save →</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Ratings/Reviews Details Modal -->
+<div id="detailsModal" class="modal-overlay">
+  <div class="modal-content pop-in" style="max-width: 600px;">
+    <div class="modal-header">
+      <h2 id="detailsModalTitle" class="gradient-text">Details</h2>
+      <button class="modal-close" onclick="closeDetailsModal()">✕</button>
+    </div>
+    <div style="max-height: 400px; overflow-y: auto; margin-top: 1rem;">
+      <table style="margin-top: 0;">
+        <thead id="detailsModalHeader">
+          <!-- Dynamic -->
+        </thead>
+        <tbody id="detailsModalBody">
+          <!-- Dynamic -->
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
